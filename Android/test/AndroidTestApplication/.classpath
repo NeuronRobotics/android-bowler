@@ -3,6 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="lib" path="/AndroidNRSDK/android/nrsdk-3.7.11-android.jar"/>
+	<classpathentry kind="lib" path="/AndroidNRSDK/android/nrsdk-3.7.11-android.jar" sourcepath="/nrjavaserial/src/main/java"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
