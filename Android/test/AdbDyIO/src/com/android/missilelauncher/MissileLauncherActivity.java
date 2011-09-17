@@ -50,6 +50,10 @@ public class MissileLauncherActivity extends Activity implements View.OnClickLis
     @Override
     public void onDestroy() {
     	System.out.println("@#@#@#@#@#Calling On Destroy");
+    	if(dyio!= null) {
+    		dyio.disconnect();
+    		dyio = null;
+    	}
         super.onDestroy();
     }
 

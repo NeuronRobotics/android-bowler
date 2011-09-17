@@ -227,7 +227,7 @@ public class UsbCdcSerial {
 						}
 						synchronized (this) {
 							if(mConnection.controlTransfer(UsbConstants.USB_DIR_OUT, 0x9, 0x200, 0, sendData, sendData.length, 0)<0) {
-								System.err.println("Data failed to send:"+sendData);    
+								System.out.println("#$#$#$Data failed to send:"+sendData);    
 							}
 						}
 					}
