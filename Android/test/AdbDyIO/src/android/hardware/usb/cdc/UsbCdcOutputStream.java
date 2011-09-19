@@ -3,7 +3,6 @@ package android.hardware.usb.cdc;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbEndpoint;
@@ -37,31 +36,22 @@ public class UsbCdcOutputStream extends Thread {
 		ep=mEndpointIntr;
 	}
 	public void run(){
-		UsbRequest request = new UsbRequest();
-        request.initialize(cdc.getUsbConnection(), ep);
 		while(cdc.isConnected()){
 			ThreadUtil.wait(1);
 			try {				
 				if( outputData.size()>0){
-					int size;
-					ByteBuffer buffer;
+					byte[] sendData;
 					synchronized(outputData){
-						size = outputData.size();
-						buffer = ByteBuffer.allocate(outputData.size());
-						buffer.put(outputData.popList(outputData.size()));
-						//sendData=new ByteBuffer(outputData.popList(outputData.size()));
+						sendData=outputData.popList(outputData.size());
 					}
-					synchronized (this) {
-//						int back =cdc.getUsbConnection().controlTransfer(	UsbConstants.USB_DIR_OUT, 
-//																						 0x9, 
-//																						 0x200, 
-//																						 0, 
-//																						 sendData, 
-//																						 sendData.length, 
-//																						 0);
-						boolean back=request.queue(buffer, size);
-						if(back) {
-							System.out.println("#$#$#$Data failed to send:"+buffer);    
+					synchronized (cdc.getUsbConnection()) {
+						System.out.println("Attempting to send: "+sendData.length+" bytes");
+						int back =cdc.getUsbConnection().bulkTransfer(	ep,
+																		sendData, 
+																		sendData.length, 
+																		10);
+						if(back<0) {
+							System.out.println("#$#$#$Data failed to send:"+sendData);    
 						}
 					}
 				}

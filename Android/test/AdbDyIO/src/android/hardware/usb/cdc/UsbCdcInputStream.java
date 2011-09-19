@@ -58,19 +58,36 @@ public class UsbCdcInputStream extends Thread {
 		ep=mEndpointIntr;
 	}
 	public void run(){
-		UsbRequest request = new UsbRequest();
-        request.initialize(cdc.getUsbConnection(),ep);
-        ByteBuffer buffer = ByteBuffer.allocate(1);
+
 		while(cdc.isConnected()){
-			try {Thread.sleep(1);} catch (InterruptedException e) {}
-			request.queue(buffer, 1);
-            if (cdc.getUsbConnection().requestWait() == request) {
-                add(buffer.get(0));
-                try {Thread.sleep(100);} catch (InterruptedException e) {}
-            } else {
-                System.out.println("requestWait failed, exiting");
-                cdc.disconnect();
-            }
+			try {Thread.sleep(50);} catch (InterruptedException e) {}
+//			UsbRequest request = new UsbRequest();
+//	        request.initialize(cdc.getUsbConnection(),ep);
+//	        ByteBuffer buffer = ByteBuffer.allocate(1);
+//			
+//			request.queue(buffer, 1);
+//            if (cdc.getUsbConnection().requestWait() == request) {
+//                add(buffer.get(0));
+//                try {Thread.sleep(100);} catch (InterruptedException e) {}
+//            } else {
+//                System.out.println("requestWait failed, exiting");
+//                cdc.disconnect();
+//            }
+//            
+			synchronized (cdc.getUsbConnection()) {
+				byte[] sendData=new byte[64];
+				int back =cdc.getUsbConnection().bulkTransfer(	ep,
+																sendData, 
+																sendData.length, 
+																100);
+				if(back>0){
+					synchronized(inputData){
+						for(int i=0;i<back;i++){
+							inputData.add(sendData[i]);
+						}
+					}
+				}
+			}
 		}
 	}
 	private void add(byte b){

@@ -85,7 +85,7 @@ public class UsbCdcSerial {
             	UsbInterface data = device.getInterface(1);
             	System.out.println(TAG+"Number of Data end points="+data.getEndpointCount());
             	UsbEndpoint inEp = data.getEndpoint(1);
-            	UsbEndpoint outEp = data.getEndpoint(1);
+            	UsbEndpoint outEp = data.getEndpoint(0);
             	
                 in = new UsbCdcInputStream(this,inEp);
                 in.start();
