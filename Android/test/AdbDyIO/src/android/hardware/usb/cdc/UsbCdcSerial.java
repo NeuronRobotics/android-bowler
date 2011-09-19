@@ -76,6 +76,7 @@ public class UsbCdcSerial {
             System.out.println(TAG+" could not find endpoint");
             return;
         }
+        System.out.println(TAG+"Number of endPoints="+intf.getEndPointCount());
         // endpoint should be of type interrupt
         UsbEndpoint ep = intf.getEndpoint(0);
         if (ep.getType() != UsbConstants.USB_ENDPOINT_XFER_INT) {
