@@ -54,7 +54,8 @@ public class UsbCdcInputStream extends Thread {
 	private UsbCdcSerial cdc;
 	UsbEndpoint ep;
 	public UsbCdcInputStream(UsbCdcSerial usbCdcSerial,UsbEndpoint mEndpointIntr) {
-		// TODO Auto-generated constructor stub
+		cdc=usbCdcSerial;
+		ep=mEndpointIntr;
 	}
 	public void run(){
 		UsbRequest request = new UsbRequest();
