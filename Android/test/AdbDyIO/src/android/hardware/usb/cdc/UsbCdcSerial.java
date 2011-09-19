@@ -76,7 +76,7 @@ public class UsbCdcSerial {
             System.out.println(TAG+" could not find endpoint");
             return;
         }
-        System.out.println(TAG+"Number of endPoints="+intf.getEndPointCount());
+        System.out.println(TAG+"Number of endPoints="+intf.getEndpointCount());
         // endpoint should be of type interrupt
         UsbEndpoint ep = intf.getEndpoint(0);
         if (ep.getType() != UsbConstants.USB_ENDPOINT_XFER_INT) {
@@ -90,9 +90,9 @@ public class UsbCdcSerial {
             if (connection != null && connection.claimInterface(intf, true)) {
                 System.out.println(TAG+ "open SUCCESS");
                 mConnection = connection;
-                in = new UsbCdcInputStream();
+                in = new UsbCdcInputStream(this,mEndpointIntr);
                 in.start();
-                out = new UsbCdcOutputStream();
+                out = new UsbCdcOutputStream(this,mEndpointIntr);
                 out.start();
             } else {
                 System.out.println(TAG+ "open FAIL");
@@ -100,9 +100,6 @@ public class UsbCdcSerial {
             }
          }
     }
-    
-    
-    
     
 	public void disconnect() {
 		System.out.println(TAG+"Disconecting");
@@ -122,122 +119,15 @@ public class UsbCdcSerial {
 		return connected;
 	}
 	
-
-	
 	
 	private void setConnected(boolean connected) {
 		if(this.connected == connected)
 			return;
 		this.connected = connected;
 	}
-	
-	private class UsbCdcInputStream extends Thread{
-		private ByteList inputData = new ByteList();
-		private InputStream ins = new InputStream() {
-			public int available(){
-				if(inputData.size()>0) {
-					return inputData.size();
-				}
-				return 0;
-			}
-			public final int read(byte[] b, int off,int len)throws IOException{
-				////Log.info("Reading "+len+" bytes from UDP: "+inputData.size());
-				int i=0;
-				byte[] get;
-				synchronized(inputData){
-					get = inputData.popList(off,len);
-				}
-				for(i=0;i<len;i++) {
-					if(i==b.length) {
-						throw new IOException("Buffer too small to hold data");
-					}
-					b[i]=get[i];
-				}
-				////Log.info("Read: "+i+" Bytes, "+inputData.size()+" left");
-				return i;
-			}
-			@Override
-			public final int read( byte[] rawBuffer) throws IOException {
-				synchronized(inputData){
-					return read(rawBuffer,0,inputData.size());
-				}
-			}
 
-			@Override
-			public int read() throws IOException {
-				synchronized(inputData){
-					if(inputData.size()>0)
-						return inputData.pop();
-				}
-				throw new IOException("Reading from empty buffer!");
-			}
-		};
-		public void run(){
-			UsbRequest request = new UsbRequest();
-	        request.initialize(mConnection, mEndpointIntr);
-	        ByteBuffer buffer = ByteBuffer.allocate(1);
-			while(isConnected()){
-				try {Thread.sleep(1);} catch (InterruptedException e) {}
-				request.queue(buffer, 1);
-	            if (mConnection.requestWait() == request) {
-	                add(buffer.get(0));
-	                try {Thread.sleep(100);} catch (InterruptedException e) {}
-	            } else {
-	                System.out.println(TAG+ "requestWait failed, exiting");
-	                disconnect();
-	            }
-			}
-		}
-		private void add(byte b){
-			synchronized(inputData){
-				System.out.println("Data from USB:"+b);
-				inputData.add(b);
-			}
-		}
-		public DataInputStream getStream(){
-			return new DataInputStream(ins);
-		}
-	}
-	
-	private class UsbCdcOutputStream extends Thread{
-		private ByteList outputData = new ByteList();
-		private OutputStream outs = new OutputStream() {
-			public void write(byte [] raw){
-				synchronized(outputData){
-					outputData.add(raw);
-				}
-			}
-			public void flush(){
-				while( outputData.size()>0);
-			}
-			@Override
-			public void write(int arg) throws IOException {
-				synchronized(outputData){
-					outputData.add((byte)arg);
-				}
-			}
-		};
-		public void run(){
-			while(isConnected()){
-				ThreadUtil.wait(1);
-				try {				
-					if( outputData.size()>0){
-						byte[] sendData;
-						synchronized(outputData){
-							sendData=outputData.popList(outputData.size());
-						}
-						synchronized (this) {
-							if(mConnection.controlTransfer(UsbConstants.USB_DIR_OUT, 0x9, 0x200, 0, sendData, sendData.length, 0)<0) {
-								System.out.println("#$#$#$Data failed to send:"+sendData);    
-							}
-						}
-					}
-				} catch (Exception e) {}
-			}
-		}
-		public DataOutputStream getStream(){
-			return new DataOutputStream(outs);
-		}
+	public UsbDeviceConnection getUsbConnection() {
+		return mConnection;
 	}
    
 }
