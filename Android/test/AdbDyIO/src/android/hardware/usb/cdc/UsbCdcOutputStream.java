@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import android.hardware.usb.UsbEndpoint;
-import com.neuronrobotics.sdk.common.ByteList;
-import com.neuronrobotics.sdk.util.ThreadUtil;
+//import com.neuronrobotics.sdk.common.ByteList;
+//import com.neuronrobotics.sdk.util.ThreadUtil;
 
 public class UsbCdcOutputStream extends Thread {
 	private ByteList outputData = new ByteList();
@@ -37,7 +37,7 @@ public class UsbCdcOutputStream extends Thread {
 	public void run(){
 		System.out.println("Starting sending thread:");
 		while(cdc.isConnected()){
-			ThreadUtil.wait(1);
+			try {Thread.sleep(1);} catch (InterruptedException e) {}
 			try {				
 				if( outputData.size()>0){
 					//System.out.println("Got data to send");

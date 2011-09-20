@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbRequest;
 
-import com.neuronrobotics.sdk.common.ByteList;
+//import com.neuronrobotics.sdk.common.ByteList;
 
 public class UsbCdcInputStream extends Thread {
 	private ByteList inputData = new ByteList();
