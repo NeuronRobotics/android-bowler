@@ -5,8 +5,8 @@
     <uses-sdk android:minSdkVersion="12" />
 
     <application>
-        <activity android:name="MissileLauncherActivity"
-            android:label="Missile Launcher"
+        <activity android:name=".AndroidDyIOSample"
+            android:label="Android DyIO Test"
             android:screenOrientation="nosensor">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

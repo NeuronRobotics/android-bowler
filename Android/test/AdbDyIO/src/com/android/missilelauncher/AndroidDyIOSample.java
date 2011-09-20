@@ -24,7 +24,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-public class MissileLauncherActivity extends Activity implements View.OnClickListener {
+public class AndroidDyIOSample extends Activity implements View.OnClickListener {
 
     private Button mFire=null;
     DyIO dyio;

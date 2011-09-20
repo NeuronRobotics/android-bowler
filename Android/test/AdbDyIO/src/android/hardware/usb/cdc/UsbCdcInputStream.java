@@ -60,7 +60,7 @@ public class UsbCdcInputStream extends Thread {
 	public void run(){
 
 		while(cdc.isConnected()){
-			try {Thread.sleep(50);} catch (InterruptedException e) {}
+			try {Thread.sleep(10);} catch (InterruptedException e) {}
 //			UsbRequest request = new UsbRequest();
 //	        request.initialize(cdc.getUsbConnection(),ep);
 //	        ByteBuffer buffer = ByteBuffer.allocate(1);
@@ -81,7 +81,7 @@ public class UsbCdcInputStream extends Thread {
 																sendData.length, 
 																100);
 				if(back>0){
-					System.out.println("Got some data: "+back);
+					//System.out.println("Got some data: "+back);
 					synchronized(inputData){
 						for(int i=0;i<back;i++){
 							inputData.add(sendData[i]);
