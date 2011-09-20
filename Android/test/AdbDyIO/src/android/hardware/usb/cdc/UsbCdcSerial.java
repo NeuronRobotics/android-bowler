@@ -54,7 +54,7 @@ public class UsbCdcSerial {
     private void setDevice(UsbDevice device) {
     	
     	if(device==null) {
-    		System.out.println(TAG+ " #@#Bad device");
+    		System.out.println(TAG+ " Device not found");
     		disconnect();
     		return;
     	}
@@ -86,18 +86,18 @@ public class UsbCdcSerial {
             	System.out.println(TAG+"Number of Data end points="+data.getEndpointCount());
             	UsbEndpoint inEp = data.getEndpoint(1);
             	UsbEndpoint outEp = data.getEndpoint(0);
-            	
+            	setConnected(true); 
                 in = new UsbCdcInputStream(this,inEp);
                 in.start();
                 out = new UsbCdcOutputStream(this,outEp);
                 out.start();
-                System.out.println(TAG+ "open SUCCESS");
+                System.out.println(TAG+ "open SUCCESS"); 
             } else {
                 System.out.println(TAG+ "open FAIL");
                 cdcDeviceConnection = null;
             }
          }
-        setConnected(true); 
+        
     }
     
 	public void disconnect() {

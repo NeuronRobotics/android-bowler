@@ -4,10 +4,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbEndpoint;
-import android.hardware.usb.UsbRequest;
-
 import com.neuronrobotics.sdk.common.ByteList;
 import com.neuronrobotics.sdk.util.ThreadUtil;
 
@@ -16,6 +13,7 @@ public class UsbCdcOutputStream extends Thread {
 	private OutputStream outs = new OutputStream() {
 		public void write(byte [] raw){
 			synchronized(outputData){
+				//System.out.println("Got data array to send");
 				outputData.add(raw);
 			}
 		}
@@ -25,6 +23,7 @@ public class UsbCdcOutputStream extends Thread {
 		@Override
 		public void write(int arg) throws IOException {
 			synchronized(outputData){
+				//System.out.println("Got data byte to send");
 				outputData.add((byte)arg);
 			}
 		}
@@ -36,15 +35,17 @@ public class UsbCdcOutputStream extends Thread {
 		ep=mEndpointIntr;
 	}
 	public void run(){
+		System.out.println("Starting sending thread:");
 		while(cdc.isConnected()){
 			ThreadUtil.wait(1);
 			try {				
 				if( outputData.size()>0){
+					System.out.println("Got data to send");
 					byte[] sendData;
 					synchronized(outputData){
 						sendData=outputData.popList(outputData.size());
 					}
-					synchronized (cdc.getUsbConnection()) {
+					//synchronized (cdc.getUsbConnection()) {
 						System.out.println("Attempting to send: "+sendData.length+" bytes");
 						int back =cdc.getUsbConnection().bulkTransfer(	ep,
 																		sendData, 
@@ -53,9 +54,11 @@ public class UsbCdcOutputStream extends Thread {
 						if(back<0) {
 							System.out.println("#$#$#$Data failed to send:"+sendData);    
 						}
-					}
+					//}
 				}
-			} catch (Exception e) {}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	public DataOutputStream getStream(){

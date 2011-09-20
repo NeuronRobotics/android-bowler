@@ -74,20 +74,21 @@ public class UsbCdcInputStream extends Thread {
 //                cdc.disconnect();
 //            }
 //            
-			synchronized (cdc.getUsbConnection()) {
+			//synchronized (cdc.getUsbConnection()) {
 				byte[] sendData=new byte[64];
 				int back =cdc.getUsbConnection().bulkTransfer(	ep,
 																sendData, 
 																sendData.length, 
 																100);
 				if(back>0){
+					System.out.println("Got some data: "+back);
 					synchronized(inputData){
 						for(int i=0;i<back;i++){
 							inputData.add(sendData[i]);
 						}
 					}
 				}
-			}
+			//}
 		}
 	}
 	private void add(byte b){

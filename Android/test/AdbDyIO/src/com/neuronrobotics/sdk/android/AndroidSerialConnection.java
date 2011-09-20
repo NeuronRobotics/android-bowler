@@ -19,6 +19,7 @@ public class AndroidSerialConnection extends BowlerAbstractConnection{
 	
 	public AndroidSerialConnection(Activity a) {
 		activity = a;
+		setSleepTime(3000);
 	}
 	
 	/* (non-Javadoc)
