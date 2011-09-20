@@ -14,8 +14,8 @@
      limitations under the License.
 -->
 <resources>
-    <!-- vendor and product ID for Dream Cheeky USB Missle Launcher -->
+    <!-- vendor and product ID for Neuron Robotics DyIO -->
     <usb-device vendor-id="1240" product-id="14146" />
-    <!-- vendor and product ID for Dream Cheeky Wireless USB Missle Launcher -->
-    <usb-device vendor-id="2689" product-id="65281" />
+    <!-- vendor and product ID for FT232 USB-Serial (UART) IC -->
+    <usb-device vendor-id="1027" product-id="24577" />
 </resources>

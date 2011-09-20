@@ -58,6 +58,14 @@ public class UsbCdcSerial {
     		disconnect();
     		return;
     	}
+    	if(device.getVendorId()==0x0403){
+    		System.out.println("Setting up FTDI device");
+    		
+    		
+    	}else{
+    		System.out.println("Setting up generic CDC device");
+    		
+    	}
         System.out.println(TAG+"Number of interfaces="+device.getInterfaceCount());
         UsbInterface intf = device.getInterface(0);
         // device should have one endpoint
@@ -86,6 +94,10 @@ public class UsbCdcSerial {
             	System.out.println(TAG+"Number of Data end points="+data.getEndpointCount());
             	UsbEndpoint inEp = data.getEndpoint(1);
             	UsbEndpoint outEp = data.getEndpoint(0);
+            	request = new UsbRequest();
+                request.initialize(cdcDeviceConnection,inEp);
+                request = new UsbRequest();
+                request.initialize(cdcDeviceConnection,outEp);
             	setConnected(true); 
                 in = new UsbCdcInputStream(this,inEp);
                 in.start();
