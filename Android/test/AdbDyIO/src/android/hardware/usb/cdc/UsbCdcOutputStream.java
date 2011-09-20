@@ -43,7 +43,10 @@ public class UsbCdcOutputStream extends Thread {
 					//System.out.println("Got data to send");
 					byte[] sendData;
 					synchronized(outputData){
-						sendData=outputData.popList(outputData.size());
+						if(outputData.size()<=ep.getMaxPacketSize())
+							sendData=outputData.popList(outputData.size());
+						else
+							sendData=outputData.popList(ep.getMaxPacketSize());
 					}
 					//synchronized (cdc.getUsbConnection()) {
 						//System.out.println("Attempting to send: "+sendData.length+" bytes");

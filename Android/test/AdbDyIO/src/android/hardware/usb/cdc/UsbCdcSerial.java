@@ -35,12 +35,12 @@ public class UsbCdcSerial {
 	public boolean connect() {
 		if(isConnected())
 			disconnect();
-        Intent intent = activity.getIntent();
+//        Intent intent = activity.getIntent();
 //        System.out.println(TAG+ "intent: " + intent);
 //        String action = intent.getAction();
 
         //UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-        setDevice((UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE));
+        setDevice((UsbDevice)activity.getIntent().getParcelableExtra(UsbManager.EXTRA_DEVICE));
 //        if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
 //        	//setDevice(device);
 //        	setConnected(true); 
@@ -62,7 +62,7 @@ public class UsbCdcSerial {
         UsbInterface intf = device.getInterface(0);
         // device should have one endpoint
         if (intf.getEndpointCount() != 1) {
-            System.out.println(TAG+" could not find endpoint");
+            System.out.println(TAG+" Control interface has wrong number of endpoints.");
             disconnect();
             return;
         }

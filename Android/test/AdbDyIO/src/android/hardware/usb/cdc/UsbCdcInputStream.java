@@ -75,7 +75,7 @@ public class UsbCdcInputStream extends Thread {
 //            }
 //            
 			//synchronized (cdc.getUsbConnection()) {
-				byte[] sendData=new byte[64];
+				byte[] sendData=new byte[ep.getMaxPacketSize()];
 				int back =cdc.getUsbConnection().bulkTransfer(	ep,
 																sendData, 
 																sendData.length, 
