@@ -60,36 +60,27 @@ public class UsbCdcInputStream extends Thread {
 	public void run(){
 
 		while(cdc.isConnected()){
-			try {Thread.sleep(10);} catch (InterruptedException e) {}
-//			UsbRequest request = new UsbRequest();
-//	        request.initialize(cdc.getUsbConnection(),ep);
-//	        ByteBuffer buffer = ByteBuffer.allocate(1);
-//			
-//			request.queue(buffer, 1);
-//            if (cdc.getUsbConnection().requestWait() == request) {
-//                add(buffer.get(0));
-//                try {Thread.sleep(100);} catch (InterruptedException e) {}
-//            } else {
-//                System.out.println("requestWait failed, exiting");
-//                cdc.disconnect();
-//            }
-//            
-			//synchronized (cdc.getUsbConnection()) {
-				byte[] sendData=new byte[ep.getMaxPacketSize()];
-				int back =cdc.getUsbConnection().bulkTransfer(	ep,
-																sendData, 
-																sendData.length, 
-																100);
-				if(back>0){
-					//System.out.println("Got some data: "+back);
-					synchronized(inputData){
-						for(int i=0;i<back;i++){
-							inputData.add(sendData[i]);
-						}
+			byte[] sendData=new byte[ep.getMaxPacketSize()];
+			int back =cdc.getUsbConnection().bulkTransfer(	ep,
+															sendData, 
+															sendData.length, 
+															cdc.getTimeOutTime());
+			if(back>0){
+
+				synchronized(inputData){
+					for(int i=0;i<back;i++){
+						inputData.add(sendData[i]);
 					}
 				}
-			//}
+			}else if(back<0){
+				System.out.println("Receive endpoint failed with code="+back);
+				cdc.reconnect();
+				try {Thread.sleep(300);} catch (InterruptedException e) {}
+			}
+
+			try {Thread.sleep(cdc.getPollTime());} catch (InterruptedException e) {}
 		}
+		System.out.println("Input stream clean exit");
 	}
 	private void add(byte b){
 		synchronized(inputData){

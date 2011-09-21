@@ -41,8 +41,9 @@ public class UsbCdcSerial {
 //        System.out.println(TAG+ "intent: " + intent);
 //        String action = intent.getAction();
 
-        //UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-        setDevice((UsbDevice)activity.getIntent().getParcelableExtra(UsbManager.EXTRA_DEVICE));
+        UsbDevice device = (UsbDevice)activity.getIntent().getParcelableExtra(UsbManager.EXTRA_DEVICE);
+        
+        setDevice(device);
 //        if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
 //        	//setDevice(device);
 //        	setConnected(true); 
@@ -68,7 +69,7 @@ public class UsbCdcSerial {
     		System.out.println("Setting up generic CDC device");
     		
     	}
-        System.out.println(TAG+"Number of interfaces="+device.getInterfaceCount());
+        //System.out.println(TAG+"Number of interfaces="+device.getInterfaceCount());
         UsbInterface intf = device.getInterface(0);
         // device should have one endpoint
         if (	(intf.getEndpointCount() != 1)||
@@ -81,7 +82,7 @@ public class UsbCdcSerial {
             return;
         }
         
-        System.out.println(TAG+"Number of endPoints="+intf.getEndpointCount());
+       // System.out.println(TAG+"Number of endPoints="+intf.getEndpointCount());
         // endpoint should be of type interrupt
         cdcControlEndpoint = intf.getEndpoint(0);
         if (cdcControlEndpoint.getType() != UsbConstants.USB_ENDPOINT_XFER_INT) {
@@ -104,9 +105,11 @@ public class UsbCdcSerial {
         	UsbRequest request = new UsbRequest();
             request.initialize(cdcDeviceConnection,cdcControlEndpoint);
             
-            if (cdcDeviceConnection != null && cdcDeviceConnection.claimInterface(intf, true)) {
+            if (	cdcDeviceConnection != null && 
+            		cdcDeviceConnection.claimInterface(intf, true)&& 
+            		cdcDeviceConnection.claimInterface(data, true)) {
             	
-            	System.out.println(TAG+"Number of Data end points="+data.getEndpointCount());
+            	//System.out.println(TAG+"Number of Data end points="+data.getEndpointCount());
             	UsbEndpoint ep1 = data.getEndpoint(1);
             	UsbEndpoint ep0 = data.getEndpoint(0);
             	
@@ -140,9 +143,11 @@ public class UsbCdcSerial {
     }
     
 	public void disconnect() {
+		setConnected(false);
+		try {Thread.sleep(getTimeOutTime()*3);} catch (InterruptedException e) {}
 		System.out.println(TAG+"Disconecting");
 		cdcDeviceConnection.close();
-		setConnected(false); 
+		 
 	}
 	
 	public InputStream getInputStream(){
@@ -165,6 +170,42 @@ public class UsbCdcSerial {
 
 	public UsbDeviceConnection getUsbConnection() {
 		return cdcDeviceConnection;
+	}
+	private int reconnectCount =0;
+	private boolean reconnecting=false;
+	public void reconnect() {
+		if(!isConnected()){
+			System.out.println("Disconnected, not reconnecting");
+			return;
+		}
+		if(reconnecting)
+			return;
+		reconnecting=true;
+		System.out.println("Reconnecting");
+		reconnectCount++;
+		disconnect();
+		if(reconnectCount>10){
+			return;
+		}
+		
+		new Thread(){
+			@Override
+			public void run(){
+				try {Thread.sleep(200);} catch (InterruptedException e) {}
+				connect();
+				reconnecting=false;
+			}
+		}.start();
+	}
+
+	public int getTimeOutTime() {
+		// TODO Auto-generated method stub
+		return 500;
+	}
+
+	public long getPollTime() {
+		// TODO Auto-generated method stub
+		return 1;
 	}
    
 }

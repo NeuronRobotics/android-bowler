@@ -35,9 +35,8 @@ public class UsbCdcOutputStream extends Thread {
 		ep=mEndpointIntr;
 	}
 	public void run(){
-		System.out.println("Starting sending thread:");
+		//System.out.println("Starting sending thread:");
 		while(cdc.isConnected()){
-			try {Thread.sleep(1);} catch (InterruptedException e) {}
 			try {				
 				if( outputData.size()>0){
 					//System.out.println("Got data to send");
@@ -48,21 +47,28 @@ public class UsbCdcOutputStream extends Thread {
 						else
 							sendData=outputData.popList(ep.getMaxPacketSize());
 					}
-					//synchronized (cdc.getUsbConnection()) {
-						//System.out.println("Attempting to send: "+sendData.length+" bytes");
-						int back =cdc.getUsbConnection().bulkTransfer(	ep,
-																		sendData, 
-																		sendData.length, 
-																		10);
+					int back=0;
+					do{
+						back =cdc.getUsbConnection().bulkTransfer(	ep,
+																	sendData, 
+																	sendData.length, 
+																		cdc.getTimeOutTime());
+						try {Thread.sleep(10);} catch (InterruptedException e) {}
 						if(back<0) {
-							System.out.println("#$#$#$Data failed to send:"+sendData);    
+							System.out.println("Transmit failed");
+							cdc.reconnect();
+							try {Thread.sleep(300);} catch (InterruptedException e) {}
 						}
+					}while(cdc.isConnected() && back<0 );
+						
 					//}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			try {Thread.sleep(cdc.getPollTime());} catch (InterruptedException e) {}
 		}
+		System.out.println("Output stream clean exit");
 	}
 	public DataOutputStream getStream(){
 		return new DataOutputStream(outs);
