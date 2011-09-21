@@ -119,6 +119,7 @@ public class UsbCdcSerial {
             	}else{
             		System.out.println(TAG+" Data directions not correct");
                     disconnect();
+                    return;
             	}
             	request = new UsbRequest();
                 request.initialize(cdcDeviceConnection,inEp);
@@ -131,7 +132,7 @@ public class UsbCdcSerial {
                 out.start();
                 System.out.println(TAG+ "open SUCCESS"); 
             } else {
-                System.out.println(TAG+ "open FAIL");
+                System.out.println(TAG+ "failed to calim interface");
                 cdcDeviceConnection = null;
             }
          }
