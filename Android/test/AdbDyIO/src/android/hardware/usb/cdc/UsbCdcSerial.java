@@ -21,6 +21,8 @@ public class UsbCdcSerial {
     
     private UsbCdcInputStream in;
     private UsbCdcOutputStream out;
+    private UsbEndpoint inEp;
+    private UsbEndpoint outEp; 
 	private boolean connected;
 	
 	private Activity activity;
@@ -69,11 +71,16 @@ public class UsbCdcSerial {
         System.out.println(TAG+"Number of interfaces="+device.getInterfaceCount());
         UsbInterface intf = device.getInterface(0);
         // device should have one endpoint
-        if (intf.getEndpointCount() != 1) {
-            System.out.println(TAG+" Control interface has wrong number of endpoints.");
+        if (	(intf.getEndpointCount() != 1)||
+        		(intf.getInterfaceClass()!=UsbConstants.USB_CLASS_COMM) ||
+        		(intf.getInterfaceSubclass()!=2)||//THis is abstract modem
+        		(intf.getInterfaceProtocol()!=1)//AT-commands (v.25ter)
+        		) {
+            System.out.println(TAG+" Control interface has wrong endpoint, class, subclass or AT set");
             disconnect();
             return;
         }
+        
         System.out.println(TAG+"Number of endPoints="+intf.getEndpointCount());
         // endpoint should be of type interrupt
         cdcControlEndpoint = intf.getEndpoint(0);
@@ -83,6 +90,14 @@ public class UsbCdcSerial {
             return;
         }
         //mDevice = device;
+        UsbInterface data = device.getInterface(1);
+        if (	(data .getEndpointCount() != 2)||
+        		(data .getInterfaceClass()!=UsbConstants.USB_CLASS_CDC_DATA) 
+        		) {
+            System.out.println(TAG+" Data interface has wrong endpoint or class");
+            disconnect();
+            return;
+        }
         
         if (device != null) {
         	cdcDeviceConnection = cdcManager.openDevice(device);
@@ -90,10 +105,21 @@ public class UsbCdcSerial {
             request.initialize(cdcDeviceConnection,cdcControlEndpoint);
             
             if (cdcDeviceConnection != null && cdcDeviceConnection.claimInterface(intf, true)) {
-            	UsbInterface data = device.getInterface(1);
+            	
             	System.out.println(TAG+"Number of Data end points="+data.getEndpointCount());
-            	UsbEndpoint inEp = data.getEndpoint(1);
-            	UsbEndpoint outEp = data.getEndpoint(0);
+            	UsbEndpoint ep1 = data.getEndpoint(1);
+            	UsbEndpoint ep0 = data.getEndpoint(0);
+            	
+            	if(ep0.getDirection()==UsbConstants.USB_DIR_IN&&ep1.getDirection()==UsbConstants.USB_DIR_OUT){
+            		inEp=ep0;
+            		outEp=ep1;
+            	}else if(ep0.getDirection()==UsbConstants.USB_DIR_IN&&ep1.getDirection()==UsbConstants.USB_DIR_OUT){
+            		inEp=ep1;
+            		outEp=ep0;
+            	}else{
+            		System.out.println(TAG+" Data directions not correct");
+                    disconnect();
+            	}
             	request = new UsbRequest();
                 request.initialize(cdcDeviceConnection,inEp);
                 request = new UsbRequest();
