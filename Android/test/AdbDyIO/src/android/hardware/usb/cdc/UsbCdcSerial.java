@@ -113,7 +113,7 @@ public class UsbCdcSerial {
             	if(ep0.getDirection()==UsbConstants.USB_DIR_IN&&ep1.getDirection()==UsbConstants.USB_DIR_OUT){
             		inEp=ep0;
             		outEp=ep1;
-            	}else if(ep1.getDirection()==UsbConstants.USB_DIR_IN&&ep0.getDirection()==UsbConstants.USB_DIR_OUT){
+            	}else if(ep0.getDirection()==UsbConstants.USB_DIR_IN&&ep1.getDirection()==UsbConstants.USB_DIR_OUT){
             		inEp=ep1;
             		outEp=ep0;
             	}else{
