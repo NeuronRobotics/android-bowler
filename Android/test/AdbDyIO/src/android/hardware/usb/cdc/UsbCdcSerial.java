@@ -37,19 +37,10 @@ public class UsbCdcSerial {
 	public boolean connect() {
 		if(isConnected())
 			disconnect();
-//        Intent intent = activity.getIntent();
-//        System.out.println(TAG+ "intent: " + intent);
-//        String action = intent.getAction();
-
+		
         UsbDevice device = (UsbDevice)activity.getIntent().getParcelableExtra(UsbManager.EXTRA_DEVICE);
         
         setDevice(device);
-//        if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
-//        	//setDevice(device);
-//        	setConnected(true); 
-//        } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-//        	setConnected(false); 
-//        }
 
 		return isConnected();	
 	}
