@@ -48,6 +48,7 @@ public class AndroidDyIOSample extends Activity implements View.OnClickListener 
 
     @Override
     public void onPause() {
+    	System.out.println("@#@#@#@#@#Calling On Pause");
         onDestroy();
     }
 
