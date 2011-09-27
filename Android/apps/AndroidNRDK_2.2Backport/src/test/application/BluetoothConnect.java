@@ -34,6 +34,7 @@ public class BluetoothConnect extends Activity {
     public synchronized void onPause() {
         super.onPause();
         Log.e(TAG, "- ON PAUSE -");
+        
     }
 
     @Override
