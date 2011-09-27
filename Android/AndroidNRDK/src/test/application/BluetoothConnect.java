@@ -58,6 +58,8 @@ public class BluetoothConnect extends Activity {
         dyio = new DyIO(connection);
         dyio.enableDebug();
         dyio.connect();
+        System.out.println("Ping:"+dyio.ping());
+        dyio.disconnect();
         finish();
     }
 
