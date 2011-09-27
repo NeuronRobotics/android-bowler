@@ -24,7 +24,7 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 	
 	
 	private static final int REQUEST_ENABLE_BT = 2;
-	private static final int REQUEST_CONNECT_DEVICE = 1;
+	public static final int REQUEST_CONNECT_DEVICE = 1;
 	
 	
 	private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -33,7 +33,7 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 	
 	public AndroidBluetoothConnection(Activity a) {
 		activity = a;
-		setSleepTime(5000);
+		setSleepTime(20000);
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -71,41 +71,30 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 	public void setDevice(BluetoothDevice d) {
 		Log.e(TAG, "+++device added: "+d.getName()+" "+d.getAddress());
 		device = mBluetoothAdapter.getRemoteDevice(d.getAddress());
+		mBluetoothAdapter.cancelDiscovery();
+		try {
+			mmSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void askUserForDevice() {
-		Log.d(TAG, "++Asking user for device ");
-		Intent serverIntent = new Intent(activity, DeviceListActivity.class);
+		Log.e(TAG, "++Asking user for device ");
+		Intent serverIntent = new Intent(activity, com.neuronrobotics.sdk.android.DeviceListActivity.class);
 		activity.startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-	}
-	
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "onActivityResult " + resultCode);
-        switch (requestCode) {
-        case REQUEST_CONNECT_DEVICE:
-            // When DeviceListActivity returns with a device to connect
-            if (resultCode == Activity.RESULT_OK) {
-                // Get the device MAC address
-                String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-                // Get the BLuetoothDevice object
-                BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+		while(device==null) {
+			try {Thread.sleep(100);} catch (InterruptedException e) {}
+			if(serverIntent.getExtras() != null) {
+				String address = serverIntent.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+				System.out.println(address);
+				Log.e(TAG, "+++Got device+ "+address);
+				BluetoothDevice device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
                 // Attempt to connect to the device
                 setDevice(device);
-            }
-            break;
-//        case REQUEST_ENABLE_BT:
-//            // When the request to enable Bluetooth returns
-//            if (resultCode == Activity.RESULT_OK) {
-//                // Bluetooth is now enabled, so set up a chat session
-//                setupChat();
-//            } else {
-//                // User did not enable Bluetooth or an error occured
-//                Log.d(TAG, "BT not enabled");
-//                Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
-//                finish();
-//            }
-        }
-    }
+			}
+		}
+	}
 	
 	@Override
 	public boolean connect() {
@@ -114,8 +103,6 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
         	askUserForDevice();
         }
         try {
-			mmSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
-			mBluetoothAdapter.cancelDiscovery();
 			mmSocket.connect();
 			setDataIns(new DataInputStream(mmSocket.getInputStream()));
 			setDataOuts(new DataOutputStream(mmSocket.getOutputStream()));

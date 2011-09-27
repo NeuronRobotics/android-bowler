@@ -15,10 +15,11 @@ public class Tester {
 				public void run(){
 				  if(dyio == null)
 					  throw new NullPointerException("DyIO must be instantiated");
-				  if(!dyio.connect())
+				  if(dyio.getConnection()==null)
 					  throw new NullPointerException("DyIO must have connection availible");
-			        System.out.println("Fire a Ping!");
-		            try {
+				  dyio.connect();
+			      System.out.println("Fire a Ping!");
+		          try {
 //		        		for (int i=0;i<24;i++){
 //		        			dyio.setMode(i, DyIOChannelMode.DIGITAL_IN,false);
 //		        		}
@@ -66,9 +67,9 @@ public class Tester {
 		        		}
 		        		System.out.println("Average cycle time for ping: "+(avg/i)+" ms");
 		        		dyio.disconnect(); 
-		            }catch(Exception ex) {
+		          }catch(Exception ex) {
 		            	ex.printStackTrace();
-		            }	
+		          }	
 				}
 			}.start();
 	    }
