@@ -16,13 +16,11 @@
 
 package test.application;
 
-import com.android.missilelauncher.R;
 import com.neuronrobotics.sdk.android.AndroidSerialConnection;
 import com.neuronrobotics.sdk.dyio.DyIO;
 import com.neuronrobotics.sdk.dyio.DyIOChannelMode;
 import com.neuronrobotics.sdk.dyio.peripherals.DigitalInputChannel;
 import com.neuronrobotics.sdk.dyio.peripherals.DigitalOutputChannel;
-import com.neuronrobotics.sdk.ui.ConnectionDialog;
 
 import android.app.Activity;
 import android.os.Bundle;

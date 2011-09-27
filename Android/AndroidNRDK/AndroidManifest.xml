@@ -1,5 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.android.missilelauncher">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="test.application">
 
     <uses-feature android:name="android.hardware.usb.host" />
     <uses-sdk android:minSdkVersion="12" />
