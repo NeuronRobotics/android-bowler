@@ -22,7 +22,7 @@
 
     <application android:label="@string/app_name"
                  android:icon="@drawable/app_icon" >
-        <activity android:name=".BluetoothChat"
+        <activity android:name="test.application.BluetoothConnect"
                   android:label="@string/app_name"
                   android:configChanges="orientation|keyboardHidden">
             <intent-filter>
