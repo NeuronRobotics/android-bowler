@@ -17,7 +17,8 @@ public class Tester {
 					  throw new NullPointerException("DyIO must be instantiated");
 				  if(dyio.getConnection()==null)
 					  throw new NullPointerException("DyIO must have connection availible");
-				  dyio.connect();
+				  if(!dyio.getConnection().isConnected())
+					  throw new NullPointerException("DyIO must be connected");
 			      System.out.println("Fire a Ping!");
 		          try {
 //		        		for (int i=0;i<24;i++){

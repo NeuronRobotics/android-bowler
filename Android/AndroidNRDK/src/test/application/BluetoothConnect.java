@@ -43,8 +43,8 @@ public class BluetoothConnect extends Activity {
        Set<BluetoothDevice> devs = connection.getPairedDevices();
        for(BluetoothDevice d:devs) {
     	   if(d.getName().contains("FireFly")) {
-//    		   connection.setDevice(d);
-//    		   return;
+    		   connection.setDevice(d);
+    		   return;
     	   }
        }
        Log.e(TAG, "No paired devices found!");
@@ -55,22 +55,17 @@ public class BluetoothConnect extends Activity {
     public void onStart() {
         super.onStart();
         Log.e(TAG, "++ ON START ++");
-        if(dyio == null)
-        	dyio = new DyIO(connection);
-        else
-        	dyio.disconnect();
-
+        dyio = new DyIO(connection);
+        dyio.enableDebug();
+        dyio.connect();
+        finish();
     }
 
     @Override
     public synchronized void onResume() {
         super.onResume();
         Log.e(TAG, "+ ON RESUME +");
-        try {
-        	Tester.runTest(dyio);
-        }catch(Exception e) {
-        	e.printStackTrace();
-        }
+
     }
 
     @Override
@@ -86,6 +81,7 @@ public class BluetoothConnect extends Activity {
         Log.e(TAG, "-- ON STOP --");
         if(dyio != null)
         	dyio.disconnect();
+        finish();
     }
 
     @Override
@@ -101,6 +97,7 @@ public class BluetoothConnect extends Activity {
         case AndroidBluetoothConnection.REQUEST_CONNECT_DEVICE:
             // When DeviceListActivity returns with a device to connect
             if (resultCode == Activity.RESULT_OK) {
+            	Log.e(TAG, "Got device ");
                 // Get the device MAC address
                 String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
                 // Get the BLuetoothDevice object
@@ -109,17 +106,6 @@ public class BluetoothConnect extends Activity {
                 connection.setDevice(device);
             }
             break;
-//        case REQUEST_ENABLE_BT:
-//            // When the request to enable Bluetooth returns
-//            if (resultCode == Activity.RESULT_OK) {
-//                // Bluetooth is now enabled, so set up a chat session
-//                setupChat();
-//            } else {
-//                // User did not enable Bluetooth or an error occured
-//                Log.d(TAG, "BT not enabled");
-//                Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
-//                finish();
-//            }
         }
     }
 }

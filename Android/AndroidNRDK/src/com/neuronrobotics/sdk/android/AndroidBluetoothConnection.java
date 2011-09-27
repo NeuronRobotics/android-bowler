@@ -83,12 +83,13 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 		Log.e(TAG, "++Asking user for device ");
 		Intent serverIntent = new Intent(activity, com.neuronrobotics.sdk.android.DeviceListActivity.class);
 		activity.startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+		Log.e(TAG, "Waiting for connection... ");
 		while(device==null) {
 			try {Thread.sleep(100);} catch (InterruptedException e) {}
 			if(serverIntent.getExtras() != null) {
 				String address = serverIntent.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
 				System.out.println(address);
-				Log.e(TAG, "+++Got device+ "+address);
+				Log.e(TAG, "Got device "+address);
 				BluetoothDevice device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
                 // Attempt to connect to the device
                 setDevice(device);
@@ -103,10 +104,12 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
         	askUserForDevice();
         }
         try {
+        	Log.e(TAG, "Connecting Socket ");
 			mmSocket.connect();
 			setDataIns(new DataInputStream(mmSocket.getInputStream()));
 			setDataOuts(new DataOutputStream(mmSocket.getOutputStream()));
 			setConnected(true);
+			Log.e(TAG, "++++Success!");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
