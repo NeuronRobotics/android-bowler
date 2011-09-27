@@ -36,6 +36,7 @@ public class BluetoothConnect extends Activity {
         mTitle = (TextView) findViewById(R.id.title_right_text);
 
        connection=new AndroidBluetoothConnection(this);
+       Log.e(TAG, "searching for paired devices");
        Set<BluetoothDevice> devs = connection.getPairedDevices();
        for(BluetoothDevice d:devs) {
     	   if(d.getName().contains("FireFly")) {

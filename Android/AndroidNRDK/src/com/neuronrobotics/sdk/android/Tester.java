@@ -9,18 +9,19 @@ import com.neuronrobotics.sdk.dyio.peripherals.DigitalOutputChannel;
 
 public class Tester {
 	  public static void runTest( final DyIO dyio){
-		  if(dyio == null)
-			  throw new NullPointerException("DyIO must be instantiated");
-		  if(!dyio.connect())
-			  throw new NullPointerException("DyIO must have connection availible");
+
 		  new Thread(){
 				@Override
 				public void run(){
+				  if(dyio == null)
+					  throw new NullPointerException("DyIO must be instantiated");
+				  if(!dyio.connect())
+					  throw new NullPointerException("DyIO must have connection availible");
 			        System.out.println("Fire a Ping!");
 		            try {
-		        		for (int i=0;i<24;i++){
-		        			dyio.setMode(i, DyIOChannelMode.DIGITAL_IN,false);
-		        		}
+//		        		for (int i=0;i<24;i++){
+//		        			dyio.setMode(i, DyIOChannelMode.DIGITAL_IN,false);
+//		        		}
 		        		DigitalInputChannel dip = new DigitalInputChannel(dyio.getChannel(0));
 		        		DigitalOutputChannel dop = new DigitalOutputChannel(dyio.getChannel(1));
 		        		
