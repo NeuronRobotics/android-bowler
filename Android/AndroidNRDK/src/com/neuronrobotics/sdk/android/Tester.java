@@ -9,9 +9,11 @@ import com.neuronrobotics.sdk.dyio.peripherals.DigitalOutputChannel;
 
 public class Tester {
 	  public static void runTest( final DyIO dyio){
-		  if(dyio == null||!dyio.connect())
-			  throw new NullPointerException("DyIO must be instantiated with connection");
-			new Thread(){
+		  if(dyio == null)
+			  throw new NullPointerException("DyIO must be instantiated");
+		  if(!dyio.connect())
+			  throw new NullPointerException("DyIO must have connection availible");
+		  new Thread(){
 				@Override
 				public void run(){
 			        System.out.println("Fire a Ping!");

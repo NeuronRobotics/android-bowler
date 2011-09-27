@@ -30,7 +30,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DeviceListActivity"
+        <activity android:name="com.neuronrobotics.sdk.android.DeviceListActivity"
                   android:label="@string/select_device"
                   android:theme="@android:style/Theme.Dialog"
                   android:configChanges="orientation|keyboardHidden" />

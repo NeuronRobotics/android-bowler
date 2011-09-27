@@ -11,6 +11,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.neuronrobotics.sdk.common.BowlerAbstractConnection;
 
@@ -19,8 +21,15 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothDevice device;
 	private BluetoothSocket mmSocket;
+	
+	
 	private static final int REQUEST_ENABLE_BT = 2;
-	private static final UUID MY_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
+	private static final int REQUEST_CONNECT_DEVICE = 1;
+	
+	
+	private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
+	private String TAG="Android Bluetooth Connection ";
 	
 	public AndroidBluetoothConnection(Activity a) {
 		activity = a;
@@ -33,7 +42,12 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
         	activity.finish();
             return;
         }
-
+        enable();
+        
+//        Intent discoverableIntent = new
+//        Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+//        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 30000);
+//        activity.startActivity(discoverableIntent);
         
 	}
 	
@@ -55,13 +69,50 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 	}
 	
 	public void setDevice(BluetoothDevice d) {
-		device = d;
+		Log.e(TAG, "+++device added: "+d.getName()+" "+d.getAddress());
+		device = mBluetoothAdapter.getRemoteDevice(d.getAddress());
 	}
+	
+	private void askUserForDevice() {
+		Log.d(TAG, "++Asking user for device ");
+		Intent serverIntent = new Intent(activity, DeviceListActivity.class);
+		activity.startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+	}
+	
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult " + resultCode);
+        switch (requestCode) {
+        case REQUEST_CONNECT_DEVICE:
+            // When DeviceListActivity returns with a device to connect
+            if (resultCode == Activity.RESULT_OK) {
+                // Get the device MAC address
+                String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+                // Get the BLuetoothDevice object
+                BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+                // Attempt to connect to the device
+                setDevice(device);
+            }
+            break;
+//        case REQUEST_ENABLE_BT:
+//            // When the request to enable Bluetooth returns
+//            if (resultCode == Activity.RESULT_OK) {
+//                // Bluetooth is now enabled, so set up a chat session
+//                setupChat();
+//            } else {
+//                // User did not enable Bluetooth or an error occured
+//                Log.d(TAG, "BT not enabled");
+//                Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
+//                finish();
+//            }
+        }
+    }
+	
 	@Override
 	public boolean connect() {
 		enable();
-        if(device == null)
-        	throw new RuntimeException("Device is not set!");
+        if(device == null) {
+        	askUserForDevice();
+        }
         try {
 			mmSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
 			mBluetoothAdapter.cancelDiscovery();
@@ -70,6 +121,7 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 			setDataOuts(new DataOutputStream(mmSocket.getOutputStream()));
 			setConnected(true);
 		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		// TODO Auto-generated method stub
 		return isConnected();
@@ -82,11 +134,14 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 	}
 	@Override
 	public void disconnect() {
-		if(mmSocket!= null)
+		if(mmSocket!= null) {
 			try {
 				mmSocket.close();
 			} catch (IOException e) {
+				e.printStackTrace();
 			}
+		}
+		
 	}
 	@Override
 	public boolean waitingForConnection() {

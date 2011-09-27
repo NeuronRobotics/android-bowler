@@ -44,7 +44,7 @@ public class BluetoothConnect extends Activity {
     	   }
        }
        Log.e(TAG, "No paired devices found!");
-       finish();
+       //finish();
     }
 
     @Override
@@ -55,15 +55,18 @@ public class BluetoothConnect extends Activity {
         	dyio = new DyIO(connection);
         else
         	dyio.disconnect();
-        Tester.runTest(dyio);
+        try {
+        	Tester.runTest(dyio);
+        }catch(Exception e) {
+        	e.printStackTrace();
+        }
     }
 
     @Override
     public synchronized void onResume() {
         super.onResume();
         Log.e(TAG, "+ ON RESUME +");
-        if(dyio != null)
-        	dyio.disconnect();
+
     }
 
     @Override
@@ -77,7 +80,8 @@ public class BluetoothConnect extends Activity {
     public void onStop() {
         super.onStop();
         Log.e(TAG, "-- ON STOP --");
-        
+        if(dyio != null)
+        	dyio.disconnect();
     }
 
     @Override
