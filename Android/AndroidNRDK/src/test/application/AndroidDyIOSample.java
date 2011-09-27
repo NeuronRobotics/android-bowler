@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.missilelauncher;
+package test.application;
 
+import com.android.missilelauncher.R;
 import com.neuronrobotics.sdk.android.AndroidSerialConnection;
 import com.neuronrobotics.sdk.dyio.DyIO;
 import com.neuronrobotics.sdk.dyio.DyIOChannelMode;

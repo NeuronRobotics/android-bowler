@@ -5,7 +5,7 @@
     <uses-sdk android:minSdkVersion="12" />
 
     <application>
-        <activity android:name=".AndroidDyIOSample"
+        <activity android:name="test.application.AndroidDyIOSample"
             android:label="Android DyIO Test"
             android:screenOrientation="nosensor">
             <intent-filter>
