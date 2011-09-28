@@ -12,10 +12,17 @@ public class Tester {
 	public static void runTest(final DyIO dyio, final TextView mConversationView){
 		if(mConversationView!=null){
 	        new Thread(){
+	        	
 	        	public void run(){
+	        		System.err.println("Starting Log Display");
 	        		while(dyio.isAvailable()){
 	                	ThreadUtil.wait(100);
-	                	mConversationView.setText(Tester.getLog());
+	                	try{
+	                		mConversationView.setText(Tester.getLog());
+	                	}catch (Exception ex){
+	                		//ex.printStackTrace();
+	                	}
+	                	System.err.println(Tester.getLog());
 	                }
 	        	}
 	        }.start();

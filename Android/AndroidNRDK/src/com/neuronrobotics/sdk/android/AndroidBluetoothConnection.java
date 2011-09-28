@@ -33,7 +33,7 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 	
 	public AndroidBluetoothConnection(Activity a) {
 		activity = a;
-		setSleepTime(20000);
+		setSleepTime(2000);
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -136,7 +136,7 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 	@Override
 	public boolean waitingForConnection() {
 		// TODO Auto-generated method stub
-		return  isConnected();
+		return  false;
 	}
 
 }
