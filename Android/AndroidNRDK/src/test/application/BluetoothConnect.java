@@ -61,7 +61,6 @@ public class BluetoothConnect extends Activity {
         super.onStart();
         Log.e(TAG, "++ ON START ++");
         dyio = new DyIO(connection);
-        dyio.enableDebug();
         dyio.connect();
         System.out.println("Ping:"+dyio.ping());
         Tester.runTest(dyio,mConversationView);
