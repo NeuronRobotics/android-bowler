@@ -10,14 +10,16 @@ import com.neuronrobotics.sdk.util.ThreadUtil;
 public class Tester {
 	static String log="";
 	public static void runTest(final DyIO dyio, final TextView mConversationView){
-        new Thread(){
-        	public void run(){
-        		while(dyio.isAvailable()){
-                	ThreadUtil.wait(100);
-                	mConversationView.setText(Tester.getLog());
-                }
-        	}
-        }.start();
+		if(mConversationView!=null){
+	        new Thread(){
+	        	public void run(){
+	        		while(dyio.isAvailable()){
+	                	ThreadUtil.wait(100);
+	                	mConversationView.setText(Tester.getLog());
+	                }
+	        	}
+	        }.start();
+		}
 		new Thread(){
 			@Override
 			public void run(){

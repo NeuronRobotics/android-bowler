@@ -70,7 +70,7 @@ public class AndroidDyIOSample extends Activity implements View.OnClickListener 
         System.out.println("DyIO created");
         
         if (v == mFire) {
-        	Tester.runTest(new DyIO(new AndroidSerialConnection(this)));
+        	Tester.runTest(new DyIO(new AndroidSerialConnection(this)), null);
         }
     }
 
