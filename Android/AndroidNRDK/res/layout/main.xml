@@ -19,7 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
-    <ListView android:id="@+id/in"
+    <TextView android:id="@+id/in"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:stackFromBottom="true"

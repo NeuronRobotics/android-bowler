@@ -6,6 +6,7 @@ import com.neuronrobotics.sdk.android.AndroidBluetoothConnection;
 import com.neuronrobotics.sdk.android.DeviceListActivity;
 import com.neuronrobotics.sdk.android.Tester;
 import com.neuronrobotics.sdk.dyio.DyIO;
+import com.neuronrobotics.sdk.util.ThreadUtil;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -14,6 +15,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class BluetoothConnect extends Activity {
@@ -23,6 +25,7 @@ public class BluetoothConnect extends Activity {
     
     AndroidBluetoothConnection connection;
     DyIO dyio;
+	private TextView mConversationView;
     
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,8 @@ public class BluetoothConnect extends Activity {
         setContentView(R.layout.main);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
 
+        mConversationView = (TextView) findViewById(R.id.in);
+        
         // Set up the custom title
         mTitle = (TextView) findViewById(R.id.title_left_text);
         mTitle.setText(R.string.app_name);
@@ -59,8 +64,11 @@ public class BluetoothConnect extends Activity {
         dyio.enableDebug();
         dyio.connect();
         System.out.println("Ping:"+dyio.ping());
-        dyio.disconnect();
-        finish();
+        Tester.runTest(dyio);
+        while(dyio.isAvailable()){
+        	ThreadUtil.wait(100);
+        	mConversationView.setText(Tester.getLog());
+        }
     }
 
     @Override

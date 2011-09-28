@@ -1,18 +1,17 @@
 package com.neuronrobotics.sdk.android;
 
-import android.app.Activity;
-
 import com.neuronrobotics.sdk.dyio.DyIO;
-import com.neuronrobotics.sdk.dyio.DyIOChannelMode;
 import com.neuronrobotics.sdk.dyio.peripherals.DigitalInputChannel;
 import com.neuronrobotics.sdk.dyio.peripherals.DigitalOutputChannel;
 
 public class Tester {
+	static String log="";
 	  public static void runTest( final DyIO dyio){
 
 		  new Thread(){
 				@Override
 				public void run(){
+					log="";
 				  if(dyio == null)
 					  throw new NullPointerException("DyIO must be instantiated");
 				  if(dyio.getConnection()==null)
@@ -43,7 +42,7 @@ public class Tester {
 		        			start = System.currentTimeMillis();
 		        			//System.out.println("Average cycle time: "+(int)(avg/i)+"ms\t\t\t this loop was: "+ms);
 		        		}
-		        		System.out.println("Average cycle time for IO get/set: "+(avg/i)+" ms");
+		        		log+=("Average cycle time for IO get/set: "+(avg/i)+" ms");
 		        		
 		        		avg=0;
 		        		dyio.setCachedMode(true);
@@ -55,7 +54,7 @@ public class Tester {
 		        			start = System.currentTimeMillis();
 		        			//System.out.println("Average cycle time: "+(int)(avg/i)+"ms\t\t\t this loop was: "+ms);
 		        		}
-		        		System.out.println("Average cycle time for cache flush: "+(avg/i)+" ms");
+		        		log+=("Average cycle time for cache flush: "+(avg/i)+" ms");
 		        		
 		        		avg=0;
 		        		start = System.currentTimeMillis();
@@ -66,7 +65,7 @@ public class Tester {
 		        			start = System.currentTimeMillis();
 		        			//System.out.println("Average cycle time: "+(int)(avg/i)+"ms\t\t\t this loop was: "+ms);
 		        		}
-		        		System.out.println("Average cycle time for ping: "+(avg/i)+" ms");
+		        		log+=("Average cycle time for ping: "+(avg/i)+" ms");
 		        		dyio.disconnect(); 
 		          }catch(Exception ex) {
 		            	ex.printStackTrace();
@@ -74,4 +73,9 @@ public class Tester {
 				}
 			}.start();
 	    }
+
+	public static CharSequence getLog() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
