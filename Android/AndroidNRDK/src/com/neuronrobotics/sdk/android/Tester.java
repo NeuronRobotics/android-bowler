@@ -74,8 +74,8 @@ public class Tester {
 			}.start();
 	    }
 
-	public static CharSequence getLog() {
+	public static String getLog() {
 		// TODO Auto-generated method stub
-		return null;
+		return log;
 	}
 }
