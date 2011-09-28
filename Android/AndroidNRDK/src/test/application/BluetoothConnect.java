@@ -64,11 +64,8 @@ public class BluetoothConnect extends Activity {
         dyio.enableDebug();
         dyio.connect();
         System.out.println("Ping:"+dyio.ping());
-        Tester.runTest(dyio);
-        while(dyio.isAvailable()){
-        	ThreadUtil.wait(100);
-        	mConversationView.setText(Tester.getLog());
-        }
+        Tester.runTest(dyio,mConversationView);
+        
     }
 
     @Override
