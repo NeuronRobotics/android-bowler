@@ -6,6 +6,7 @@ import com.neuronrobotics.sdk.android.AndroidBluetoothConnection;
 import com.neuronrobotics.sdk.android.DeviceListActivity;
 import com.neuronrobotics.sdk.android.Tester;
 import com.neuronrobotics.sdk.dyio.DyIO;
+import com.neuronrobotics.sdk.ui.ConnectionDialog;
 import com.neuronrobotics.sdk.util.ThreadUtil;
 
 import android.app.Activity;
@@ -47,7 +48,7 @@ public class BluetoothConnect extends Activity {
        Log.e(TAG, "searching for paired devices");
        Set<BluetoothDevice> devs = connection.getPairedDevices();
        for(BluetoothDevice d:devs) {
-    	   if(d.getName().contains("FireFly")) {
+    	   if(d.getName().toLowerCase().contains("firefly") || (d.getName().toLowerCase().contains("neuron") && d.getName().toLowerCase().contains("robotics"))) {
     		   connection.setDevice(d);
     		   return;
     	   }
@@ -63,8 +64,13 @@ public class BluetoothConnect extends Activity {
         dyio = new DyIO(connection);
         dyio.connect();
         System.out.println("Ping:"+dyio.ping());
-        Tester.runTest(dyio,mConversationView);
-        
+        //Tester.runTest(dyio,mConversationView);
+		try{
+			new RealTimeLineTrackWithPID(dyio);
+		}catch (Exception ex){
+			ex.printStackTrace();
+			System.exit(0);
+		}
     }
 
     @Override
