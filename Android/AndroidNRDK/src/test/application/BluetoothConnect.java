@@ -4,11 +4,7 @@ import java.util.Set;
 
 import com.neuronrobotics.sdk.android.AndroidBluetoothConnection;
 import com.neuronrobotics.sdk.android.DeviceListActivity;
-import com.neuronrobotics.sdk.android.Tester;
 import com.neuronrobotics.sdk.dyio.DyIO;
-import com.neuronrobotics.sdk.ui.ConnectionDialog;
-import com.neuronrobotics.sdk.util.ThreadUtil;
-
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -16,7 +12,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
-import android.widget.ListView;
 import android.widget.TextView;
 
 public class BluetoothConnect extends Activity {
@@ -67,10 +62,11 @@ public class BluetoothConnect extends Activity {
         System.out.println("Ping:"+dyio.ping());
         //Tester.runTest(dyio,mConversationView);
 		try{
+			System.out.println("Starting tracker");
 			new RealTimeLineTrackWithPID(dyio);
+			System.out.println("Tracker started");
 		}catch (Exception ex){
 			ex.printStackTrace();
-			//System.exit(0);
 		}
     }
 

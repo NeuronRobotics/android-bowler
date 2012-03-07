@@ -119,7 +119,8 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 
 	@Override
 	public boolean reconnect() throws IOException {
-		// TODO Auto-generated method stub
+		disconnect();
+		connect();
 		return  isConnected();
 	}
 	@Override
