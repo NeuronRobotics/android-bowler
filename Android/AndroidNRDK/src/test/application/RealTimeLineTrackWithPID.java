@@ -17,7 +17,7 @@ public class RealTimeLineTrackWithPID implements IPIDEventListener {
 	public RealTimeLineTrackWithPID(DyIO dyio){
 
 		
-		dyio.addPIDEventListener(this);
+		
 		/**
 		 * This configuration uses 2 line sensors and 2 continuous turn servos in the standard "Puck Bot" configuration
 		 * 
@@ -64,25 +64,23 @@ public class RealTimeLineTrackWithPID implements IPIDEventListener {
 															false);//Set the setpoint to the current location when index it reached
 		
 		//Setup the controller with the configurations
-		dyio.ConfigureDynamicPIDChannels(dypidR);
-		dyio.ConfigurePIDController(pidR);
-		dyio.ConfigureDynamicPIDChannels(dypidL);
-		dyio.ConfigurePIDController(pidL);
+		dyio.ConfigureDynamicPIDChannels(dypidR);ThreadUtil.wait(10);
+		
+		dyio.ConfigureDynamicPIDChannels(dypidL);ThreadUtil.wait(10);
+		dyio.ConfigurePIDController(pidR);ThreadUtil.wait(10);
+		dyio.ConfigurePIDController(pidL);ThreadUtil.wait(10);
 		
 		//Set a single setpoint to the controler
 		dyio.SetPIDSetPoint(	0,//Group 0
 								512,//Tell the controller to go to position 500
 								0);//Take 0 secoinds to get there
+		ThreadUtil.wait(10);
 		dyio.SetPIDSetPoint(	1,//Group 1
 								512,//Tell the controller to go to position 500
 								0);//Take 0 secoinds to get there
-		
-		while(true){
-			ThreadUtil.wait(100);
-			if(lVal >500 && rVal>500){
-				System.out.println("Stop Condition!");
-			}
-		}
+		ThreadUtil.wait(10);
+		System.out.println("Line Track Started");
+		dyio.addPIDEventListener(this);
 	}
 
 
@@ -94,7 +92,9 @@ public class RealTimeLineTrackWithPID implements IPIDEventListener {
 		if(e.getGroup()==1){
 			rVal = e.getValue();
 		}
-
+		if(lVal >500 && rVal>500){
+			System.out.println("Stop Condition!");
+		}
 	}
 
 	@Override

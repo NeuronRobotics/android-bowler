@@ -61,6 +61,7 @@ public class BluetoothConnect extends Activity {
     public void onStart() {
         super.onStart();
         Log.e(TAG, "++ ON START ++");
+        DyIO.disableFWCheck();
         dyio = new DyIO(connection);
         dyio.connect();
         System.out.println("Ping:"+dyio.ping());
@@ -69,7 +70,7 @@ public class BluetoothConnect extends Activity {
 			new RealTimeLineTrackWithPID(dyio);
 		}catch (Exception ex){
 			ex.printStackTrace();
-			System.exit(0);
+			//System.exit(0);
 		}
     }
 
