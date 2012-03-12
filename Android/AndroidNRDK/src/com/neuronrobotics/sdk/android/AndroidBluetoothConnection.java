@@ -68,18 +68,26 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 		return mBluetoothAdapter.getBondedDevices();
 	}
 	
-	public void setDevice(BluetoothDevice d) {
+	public void setDevice(BluetoothDevice d) throws IOException {
 		Log.e(TAG, "+++device added: "+d.getName()+" "+d.getAddress());
 		device = mBluetoothAdapter.getRemoteDevice(d.getAddress());
-		mBluetoothAdapter.cancelDiscovery();
+		try {
+			mBluetoothAdapter.cancelDiscovery();
+		} catch (Exception e) {
+			
+		}
 		try {
 			mmSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+			mmSocket.connect();
 		} catch (IOException e) {
 			e.printStackTrace();
+			mmSocket=null;
+			throw e;
 		}
+		
 	}
 	
-	private void askUserForDevice() {
+	private void askUserForDevice() throws IOException {
 		Log.e(TAG, "++Asking user for device ");
 		Intent serverIntent = new Intent(activity, com.neuronrobotics.sdk.android.DeviceListActivity.class);
 		activity.startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
@@ -101,11 +109,18 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 	public boolean connect() {
 		enable();
         if(device == null) {
-        	askUserForDevice();
+        	try {
+				askUserForDevice();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
         }
         try {
         	Log.e(TAG, "Connecting Socket ");
-			mmSocket.connect();
+        	if(mmSocket == null) {
+        		setDevice(device);
+        	}
+			//mmSocket.connect();
 			setDataIns(new DataInputStream(mmSocket.getInputStream()));
 			setDataOuts(new DataOutputStream(mmSocket.getOutputStream()));
 			setConnected(true);
@@ -128,6 +143,7 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 		if(mmSocket!= null) {
 			try {
 				mmSocket.close();
+				mmSocket = null;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
