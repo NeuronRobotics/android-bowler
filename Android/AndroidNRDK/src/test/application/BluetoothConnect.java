@@ -5,6 +5,8 @@ import java.util.Set;
 import com.neuronrobotics.sdk.android.AndroidBluetoothConnection;
 import com.neuronrobotics.sdk.android.DeviceListActivity;
 import com.neuronrobotics.sdk.dyio.DyIO;
+import com.neuronrobotics.sdk.util.ThreadUtil;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -22,6 +24,7 @@ public class BluetoothConnect extends Activity {
     AndroidBluetoothConnection connection;
     DyIO dyio;
 	private TextView mConversationView;
+	boolean ready = false;
     
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,15 +43,22 @@ public class BluetoothConnect extends Activity {
         mTitle = (TextView) findViewById(R.id.title_right_text);
 
        connection=new AndroidBluetoothConnection(this);
-       Log.e(TAG, "searching for paired devices");
-       Set<BluetoothDevice> devs = connection.getPairedDevices();
-       for(BluetoothDevice d:devs) {
-    	   if(d.getName().toLowerCase().contains("firefly") || (d.getName().toLowerCase().contains("neuron") && d.getName().toLowerCase().contains("robotics"))) {
-    		   connection.setDevice(d);
-    		   return;
+       new Thread() {
+    	   public void run() {
+		       Log.e(TAG, "searching for paired devices");
+		       Set<BluetoothDevice> devs = connection.getPairedDevices();
+		       for(BluetoothDevice d:devs) {
+		    	   if(d.getName().toLowerCase().contains("firefly") || (d.getName().toLowerCase().contains("neuron") && d.getName().toLowerCase().contains("robotics"))) {
+		    		   connection.setDevice(d);
+		    		   if(connection.connect()) {
+		    			   ready=true;
+		    			   return;
+		    		   }		    		   
+		    	   }
+		       }
+		       Log.e(TAG, "No paired devices found!");
     	   }
-       }
-       Log.e(TAG, "No paired devices found!");
+       }.start();
        //finish();
     }
 
@@ -56,12 +66,17 @@ public class BluetoothConnect extends Activity {
     public void onStart() {
         super.onStart();
         Log.e(TAG, "++ ON START ++");
-        DyIO.disableFWCheck();
-        dyio = new DyIO(connection);
-        dyio.connect();
-        System.out.println("Ping:"+dyio.ping());
-        //Tester.runTest(dyio,mConversationView);
+        while(ready==false) {
+        	ThreadUtil.wait(1000);
+        	System.out.println("wait...");
+        }
+        Log.e(TAG, "Starting code");
 		try{
+	        DyIO.disableFWCheck();
+	        dyio = new DyIO(connection);
+	        dyio.connect();
+	        System.out.println("Ping:"+dyio.ping());
+
 			System.out.println("Starting tracker");
 			new RealTimeLineTrackWithPID(dyio);
 			System.out.println("Tracker started");
@@ -81,7 +96,7 @@ public class BluetoothConnect extends Activity {
     public synchronized void onPause() {
         super.onPause();
         Log.e(TAG, "- ON PAUSE -");
-        
+        onStop();
     }
 
     @Override
@@ -98,6 +113,7 @@ public class BluetoothConnect extends Activity {
         super.onDestroy();
 
         Log.e(TAG, "--- ON DESTROY ---");
+        onStop();
     }
     
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
