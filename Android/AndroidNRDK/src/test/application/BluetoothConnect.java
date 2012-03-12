@@ -49,6 +49,7 @@ public class BluetoothConnect extends Activity {
 		       Set<BluetoothDevice> devs = connection.getPairedDevices();
 		       for(BluetoothDevice d:devs) {
 		    	   if(d.getName().toLowerCase().contains("firefly") || (d.getName().toLowerCase().contains("neuron") && d.getName().toLowerCase().contains("robotics"))) {
+		    		   Log.e(TAG,"Testing device: "+d.getName()+" "+d.getAddress());
 		    		   try {
 			    		   connection.setDevice(d);
 			    		   ready=true;

@@ -15,6 +15,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.neuronrobotics.sdk.common.BowlerAbstractConnection;
+import com.neuronrobotics.sdk.common.Tracer;
 
 public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 	private Activity activity;
@@ -70,6 +71,7 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 	
 	public void setDevice(BluetoothDevice d) throws IOException {
 		Log.e(TAG, "+++device added: "+d.getName()+" "+d.getAddress());
+		System.out.println("setDevice Called from: "+Tracer.calledFrom()); 
 		device = mBluetoothAdapter.getRemoteDevice(d.getAddress());
 		try {
 			mBluetoothAdapter.cancelDiscovery();
@@ -77,11 +79,12 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 			
 		}
 		try {
-			mmSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
-			mmSocket.connect();
+			setMmSocket(device.createRfcommSocketToServiceRecord(MY_UUID));
+			getMmSocket().connect();
+			return;
 		} catch (IOException e) {
 			e.printStackTrace();
-			mmSocket=null;
+			setMmSocket(null);
 			throw e;
 		}
 		
@@ -107,6 +110,7 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 	
 	@Override
 	public boolean connect() {
+		System.out.println("connect Called from: "+Tracer.calledFrom()); 
 		enable();
         if(device == null) {
         	try {
@@ -117,12 +121,13 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
         }
         try {
         	Log.e(TAG, "Connecting Socket ");
-        	if(mmSocket == null) {
+        	if(getMmSocket() == null) {
+        		Log.e(TAG, "--Socket is null!!");
         		setDevice(device);
         	}
 			//mmSocket.connect();
-			setDataIns(new DataInputStream(mmSocket.getInputStream()));
-			setDataOuts(new DataOutputStream(mmSocket.getOutputStream()));
+			setDataIns(new DataInputStream(getMmSocket().getInputStream()));
+			setDataOuts(new DataOutputStream(getMmSocket().getOutputStream()));
 			setConnected(true);
 			Log.e(TAG, "++++Success!");
 		} catch (IOException e) {
@@ -134,16 +139,19 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 
 	@Override
 	public boolean reconnect() throws IOException {
+		System.out.println("reconnect Called from: "+Tracer.calledFrom()); 
 		disconnect();
 		connect();
 		return  isConnected();
 	}
 	@Override
 	public void disconnect() {
-		if(mmSocket!= null) {
+		System.out.println("disconnect Called from: "+Tracer.calledFrom()); 
+		if(getMmSocket()!= null) {
 			try {
-				mmSocket.close();
-				mmSocket = null;
+				getMmSocket().close();
+				setMmSocket(null);
+				setConnected(false);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -154,6 +162,16 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 	public boolean waitingForConnection() {
 		// TODO Auto-generated method stub
 		return  false;
+	}
+
+	public void setMmSocket(BluetoothSocket mmSocket) {
+		System.out.println("setMmSocket Called from: "+Tracer.calledFrom()); 
+		System.out.println("setMmSocket is now = "+mmSocket ); 
+		this.mmSocket = mmSocket;
+	}
+
+	public BluetoothSocket getMmSocket() {
+		return mmSocket;
 	}
 
 }
