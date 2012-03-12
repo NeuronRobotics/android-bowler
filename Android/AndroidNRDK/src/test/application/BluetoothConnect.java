@@ -19,7 +19,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class BluetoothConnect extends Activity {
+public class BluetoothConnect extends Activity implements Runnable {
 	private String TAG="NRDK Bluetooth 2.2 ";
     // Layout Views
     private TextView mTitle;
@@ -47,27 +47,7 @@ public class BluetoothConnect extends Activity {
         mTitle = (TextView) findViewById(R.id.title_right_text);
 
        connection=new AndroidBluetoothConnection(this);
-       new Thread() {
-    	   public void run() {
-		       Log.e(TAG, "searching for paired devices");
-		       Set<BluetoothDevice> devs = connection.getPairedDevices();
-		       for(BluetoothDevice d:devs) {
-		    	   if(d.getName().toLowerCase().contains("firefly") || (d.getName().toLowerCase().contains("neuron") && d.getName().toLowerCase().contains("robotics"))) {
-		    		   Log.e(TAG,"Testing device: "+d.getName()+" "+d.getAddress());
-		    		   try {
-			    		   connection.setDevice(d);
-			    		   ready=true;
-			    		   Log.e(TAG,"Using Device: "+d.getName()+" "+d.getAddress());
-			    		
-			    		   return;
-		    		   }catch(Exception ex){
-		    			   ex.printStackTrace();
-		    		   }	    		   
-		    	   }
-		       }
-		       Log.e(TAG, "No paired devices found!");
-    	   }
-       }.start();
+       new Thread(this).start();
        
 	   
        start = (Button) findViewById(R.id.button_start);
@@ -88,7 +68,7 @@ public class BluetoothConnect extends Activity {
        stop.setEnabled(false);
     }
 	
-	private void setRunning(boolean r) {
+	public void setRunning(boolean r) {
 		start.setEnabled(!r);
 		stop.setEnabled(r);
 		if(r) {
@@ -126,10 +106,6 @@ public class BluetoothConnect extends Activity {
     public void onStart() {
         super.onStart();
         Log.e(TAG, "++ ON START ++");
-        while(ready==false) {
-        	System.out.println("wait...");
-        	ThreadUtil.wait(1000);
-        }
         setRunning(false);
     }
 
@@ -137,7 +113,7 @@ public class BluetoothConnect extends Activity {
     public synchronized void onResume() {
         super.onResume();
         Log.e(TAG, "+ ON RESUME +");
-
+        setRunning(false);
     }
 
     @Override
@@ -184,4 +160,25 @@ public class BluetoothConnect extends Activity {
             break;
         }
     }
+
+	@Override
+	public void run() {
+	       Log.e(TAG, "searching for paired devices");
+	       Set<BluetoothDevice> devs = connection.getPairedDevices();
+	       for(BluetoothDevice d:devs) {
+	    	   if(d.getName().toLowerCase().contains("firefly") || (d.getName().toLowerCase().contains("neuron") && d.getName().toLowerCase().contains("robotics"))) {
+	    		   Log.e(TAG,"Testing device: "+d.getName()+" "+d.getAddress());
+	    		   try {
+		    		   connection.setDevice(d);
+		    		   ready=true;
+		    		   Log.e(TAG,"Using Device: "+d.getName()+" "+d.getAddress());
+		    		   
+		    		   return;
+	    		   }catch(Exception ex){
+	    			   ex.printStackTrace();
+	    		   }	    		   
+	    	   }
+	       }
+	       Log.e(TAG, "No paired devices found!");
+	}
 }
