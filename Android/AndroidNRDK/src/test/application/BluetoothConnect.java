@@ -53,6 +53,7 @@ public class BluetoothConnect extends Activity {
 		    		   try {
 			    		   connection.setDevice(d);
 			    		   ready=true;
+			    		   Log.e(TAG,"Using Device: "+d.getName()+" "+d.getAddress());
 			    		   return;
 		    		   }catch(Exception ex){
 		    			   ex.printStackTrace();
@@ -72,8 +73,8 @@ public class BluetoothConnect extends Activity {
         	public void run() {
 		        Log.e(TAG, "++ ON START ++");
 		        while(ready==false) {
-		        	ThreadUtil.wait(1000);
 		        	System.out.println("wait...");
+		        	ThreadUtil.wait(1000);
 		        }
 		        Log.e(TAG, "Starting code");
 				try{
