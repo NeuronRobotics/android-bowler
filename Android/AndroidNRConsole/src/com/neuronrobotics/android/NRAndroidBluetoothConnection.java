@@ -17,7 +17,7 @@ import android.widget.Toast;
 import com.neuronrobotics.sdk.common.BowlerAbstractConnection;
 import com.neuronrobotics.sdk.common.Tracer;
 
-public class AndroidBluetoothConnection extends BowlerAbstractConnection {
+public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 	private Activity activity;
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothDevice device;
@@ -32,7 +32,7 @@ public class AndroidBluetoothConnection extends BowlerAbstractConnection {
 
 	private String TAG="Android Bluetooth Connection ";
 	
-	public AndroidBluetoothConnection(Activity a) {
+	public NRAndroidBluetoothConnection(Activity a) {
 		activity = a;
 		setSleepTime(2000);
         // Get local Bluetooth adapter
