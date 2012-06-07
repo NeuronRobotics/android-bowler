@@ -16,11 +16,12 @@ public class AndroidNRConsoleActivity extends Activity {
         new Thread(){
         	public void run(){
 		        NRAndroidBluetoothConnection connection = new NRAndroidBluetoothConnection( activity);
-		        DyIO.disableFWCheck();
-		        DyIO dyio = new DyIO(connection);
-		        dyio.connect();
-		        System.out.println("Ping:"+dyio.ping());
-		        dyio.disconnect();
+
+		        //DyIO dyio = new DyIO(connection);
+		       // dyio.connect();
+		        //System.out.println("Ping:"+dyio.ping());
+		        //dyio.disconnect();
+		        System.out.println("Running");
         	}
         }.start();
     }
