@@ -32,7 +32,7 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 	
 	public NRAndroidBluetoothConnection(Activity a) {
 		activity = a;
-		setSleepTime(2000);
+		setSleepTime(20000);
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -68,17 +68,19 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 	}
 	
 	public void setDevice(BluetoothDevice d) throws IOException {
+		if(d == device)
+			return;
 		Log.e(TAG, "+++device added: "+d.getName()+" "+d.getAddress());
 		System.out.println("setDevice Called from: "+Tracer.calledFrom()); 
 		device = mBluetoothAdapter.getRemoteDevice(d.getAddress());
 		try {
 			mBluetoothAdapter.cancelDiscovery();
 		} catch (Exception e) {
-			
+			e.printStackTrace();
 		}
 		try {
 			setMmSocket(device.createRfcommSocketToServiceRecord(MY_UUID));
-			getMmSocket().connect();
+			System.out.println("Set up device");
 			return;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -111,11 +113,7 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 		System.out.println("connect Called from: "+Tracer.calledFrom()); 
 		enable();
         if(device == null) {
-//        	try {
-//				askUserForDevice();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
+        	throw new RuntimeException("Device not selected and set before connecting, bailing out");
         }
         try {
         	Log.e(TAG, "Connecting Socket ");
@@ -123,7 +121,7 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
         		Log.e(TAG, "--Socket is null!!");
         		setDevice(device);
         	}
-			//mmSocket.connect();
+        	getMmSocket().connect();
 			setDataIns(new DataInputStream(getMmSocket().getInputStream()));
 			setDataOuts(new DataOutputStream(getMmSocket().getOutputStream()));
 			setConnected(true);
@@ -170,8 +168,6 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 	}
 
 	public BluetoothSocket getMmSocket() {
-		if(mmSocket == null)
-			throw new RuntimeException("No availible socket");
 		return mmSocket;
 	}
 
