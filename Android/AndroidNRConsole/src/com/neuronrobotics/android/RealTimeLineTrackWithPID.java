@@ -7,7 +7,6 @@ import com.neuronrobotics.sdk.pid.IPIDEventListener;
 import com.neuronrobotics.sdk.pid.PIDConfiguration;
 import com.neuronrobotics.sdk.pid.PIDEvent;
 import com.neuronrobotics.sdk.pid.PIDLimitEvent;
-import com.neuronrobotics.sdk.ui.ConnectionDialog;
 import com.neuronrobotics.sdk.util.ThreadUtil;
 
 public class RealTimeLineTrackWithPID implements IPIDEventListener {
@@ -83,8 +82,6 @@ public class RealTimeLineTrackWithPID implements IPIDEventListener {
 		dyio.addPIDEventListener(this);
 	}
 
-
-	@Override
 	public void onPIDEvent(PIDEvent e) {
 		if(e.getGroup()==0){
 			lVal = e.getValue();
@@ -97,13 +94,13 @@ public class RealTimeLineTrackWithPID implements IPIDEventListener {
 		}
 	}
 
-	@Override
+
 	public void onPIDLimitEvent(PIDLimitEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
+
 	public void onPIDReset(int group, int currentValue) {
 		// TODO Auto-generated method stub
 		

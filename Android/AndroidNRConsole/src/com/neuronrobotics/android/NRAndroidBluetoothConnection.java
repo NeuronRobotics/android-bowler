@@ -163,12 +163,15 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 	}
 
 	public void setMmSocket(BluetoothSocket mmSocket) {
+		
 		System.out.println("setMmSocket Called from: "+Tracer.calledFrom()); 
 		System.out.println("setMmSocket is now = "+mmSocket ); 
 		this.mmSocket = mmSocket;
 	}
 
 	public BluetoothSocket getMmSocket() {
+		if(mmSocket == null)
+			throw new RuntimeException("No availible socket");
 		return mmSocket;
 	}
 
