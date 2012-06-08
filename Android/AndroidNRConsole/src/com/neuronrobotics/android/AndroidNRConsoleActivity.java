@@ -50,10 +50,7 @@ public class AndroidNRConsoleActivity extends Activity {
         System.out.println("Running");
         
 		double avg=0;
-		
 		int i;
-		
-		
 		avg=0;
 		long start = System.currentTimeMillis();
 		for(i=0;i<10;i++) {
