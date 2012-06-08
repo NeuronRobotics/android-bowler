@@ -56,7 +56,7 @@ public class AndroidNRConsoleActivity extends Activity {
 		
 		avg=0;
 		long start = System.currentTimeMillis();
-		for(i=0;i<500;i++) {
+		for(i=0;i<10;i++) {
 			dyio.ping();
 			double ms=System.currentTimeMillis()-start;
 			avg +=ms;
