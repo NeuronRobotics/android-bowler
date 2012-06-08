@@ -48,6 +48,22 @@ public class AndroidNRConsoleActivity extends Activity {
         dyio = new DyIO(connection);
         dyio.connect();
         System.out.println("Running");
+        
+		double avg=0;
+		
+		int i;
+		
+		
+		avg=0;
+		long start = System.currentTimeMillis();
+		for(i=0;i<500;i++) {
+			dyio.ping();
+			double ms=System.currentTimeMillis()-start;
+			avg +=ms;
+			start = System.currentTimeMillis();
+			System.out.println("Average cycle time: "+(int)(avg/i)+"ms\t\t\t this loop was: "+ms);
+		}
+		System.out.println("Average cycle time for ping: "+(avg/i)+" ms");
     }
     
     @Override
