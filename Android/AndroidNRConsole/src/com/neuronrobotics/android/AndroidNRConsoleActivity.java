@@ -316,8 +316,9 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     	// TODO Auto-generated method stub
     	super.onDestroy();
     	System.err.println("Closing Bluetooth");
-    	setRunningButtons(false);  
-    	dyio.disconnect();
+    	setRunningButtons(false); 
+    	if(dyio != null)
+    		dyio.disconnect();
     	content="";
     	addToDisplay("NR-Console Log");
     }
