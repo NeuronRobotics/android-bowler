@@ -2,33 +2,84 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:gravity="top"
     android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/connect"
+    <ViewFlipper
+        android:id="@+id/startSwitch"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Connect DyIO" />
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="top"
+            android:orientation="vertical" >
+
+            <Button
+                android:id="@+id/connect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Connect DyIO" />
+
+            <Button
+                android:id="@+id/test"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Run Performance Test" />
+
+            <Button
+                android:id="@+id/start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Start NR-Console" />
+
+            <ScrollView
+                android:id="@+id/displayScroller"
+                android:layout_width="match_parent"
+                android:layout_height="295dp"
+                android:fillViewport="true"
+                android:scrollbars="vertical" >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical" >
+
+                    <EditText
+                        android:id="@+id/display"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:inputType="textMultiLine" >
+
+                        <requestFocus />
+                    </EditText>
+                </LinearLayout>
+                
+            </ScrollView>
+        </LinearLayout>
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="top"
+            android:orientation="vertical" >
+
+            <Button
+                android:id="@+id/backToConnections"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Back To Connections" />
+
+        </LinearLayout>
+    </ViewFlipper>
 
     <Button
-        android:id="@+id/test"
+        android:id="@+id/disconnect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Run Performance Test" />
-
-    <Button
-        android:id="@+id/start"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Start NR-Console" />
-
-    <EditText
-        android:id="@+id/display"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.74"
-        android:ems="10"
-        android:inputType="textMultiLine" >
-    </EditText>
+        android:text="Disconnect" />
 
 </LinearLayout>
