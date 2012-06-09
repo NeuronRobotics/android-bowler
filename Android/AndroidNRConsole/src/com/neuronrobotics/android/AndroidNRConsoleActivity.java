@@ -1,6 +1,7 @@
 package com.neuronrobotics.android;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Set;
 
 import com.neuronrobotics.sdk.dyio.DyIO;
@@ -15,6 +16,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -23,28 +25,33 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 public class AndroidNRConsoleActivity extends Activity implements IChannelEventListener, IDyIOEventListener {
     /** Called when the activity is first created. */
-	AndroidNRConsoleActivity activity;
-	DyIO dyio;
-	NRAndroidBluetoothConnection connection;
+	private AndroidNRConsoleActivity activity;
+	private DyIO dyio;
+	private NRAndroidBluetoothConnection connection;
 	private String content="";
-	Button connect;
-	Button test;
-	Button start;
-	Button backToConnections;
-	Button disconnect;
-	EditText mTitle;
-	ScrollView displayScroller;
-	ViewFlipper switcher;
-	Activity myActivity;
-	ProgressDialog dialog;
+	private Button connect;
+	private Button test;
+	private Button start;
+	private Button backToConnections;
+	private Button disconnect;
+	private EditText mTitle;
+	private ViewFlipper switcher;
+	private ProgressDialog dialog;
+	private ArrayList<BluetoothDevice> unpaired;
+	private String [] unpairedStrings;
+	private BluetoothDevice myDev;
+	private AlertDialog pairDialog;
+	private AlertDialog.Builder builder ;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        myActivity=this;
+        activity=this;
         setContentView(R.layout.main);
         content="";
         
@@ -55,7 +62,6 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
         
         mTitle = (EditText) findViewById(R.id.display);
         mTitle.setKeyListener(null);
-        displayScroller = (ScrollView)findViewById(R.id.displayScroller);
         switcher = (ViewFlipper) findViewById(R.id.startSwitch);
         
         test.setEnabled(false);
@@ -113,7 +119,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     	if(dialog !=null){
     		dialog.dismiss();
     	}
-    	dialog = ProgressDialog.show(myActivity, "", 
+    	dialog = ProgressDialog.show(activity, "", 
                 "Connecting. Please wait...", true);
     	addToDisplay("Connecting...");
     	new Thread(){
@@ -121,7 +127,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
                 //Log.enableDebugPrint(true);
                 
                 Set<BluetoothDevice>  devices = connection.getPairedDevices();
-                BluetoothDevice myDev = null;
+                myDev = null;
                 for(BluetoothDevice d : devices){
                 	addToDisplay("\tPaired Device found: "+d.getName());
                 	if(d.getName().contains("DyIO")){
@@ -131,13 +137,72 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
                 	}
                 }
                 if(myDev==null){
-                	addToDisplay("No device found, return");
+                	addToDisplay("No paired device found, checking for visible devices...");
+                	unpaired = connection.getVisibleDevices();
+                	addToDisplay("Devices Visible: ");
+                	for(int i=0;i<unpaired.size();i++){
+                		addToDisplay("\t"+unpaired.get(i).getName());
+                	}
+                	dialog.dismiss();
+                	
+                	builder = new AlertDialog.Builder(activity);
+                	builder.setTitle("Select Device to Pair");
+                	unpairedStrings = new String[unpaired.size()];
+                	for(int i=0;i<unpaired.size();i++){
+                		unpairedStrings[i]=unpaired.get(i).getName();
+                	}
+                	builder.setItems(unpairedStrings, new DialogInterface.OnClickListener() {
+                	    public void onClick(DialogInterface dialog, int item) {
+                	        Toast.makeText(getApplicationContext(), unpairedStrings[item], Toast.LENGTH_SHORT).show();
+                	        myDev = unpaired.get(item);
+                	        
+                	        pairDialog.dismiss();
+                	        new Thread(new Runnable() {
+	      	          	  		  public void run() {
+	      	          	  			connect.post(new Runnable() {
+	      	          	  				  public void run() {
+	      	          	  					String ACTION_PAIRING_REQUEST = "android.bluetooth.device.action.PAIRING_REQUEST";
+			      	          	  	        Intent intent = new Intent(ACTION_PAIRING_REQUEST);
+			      	          	  	        String EXTRA_DEVICE = "android.bluetooth.device.extra.DEVICE";
+			      	          	  	        intent.putExtra(EXTRA_DEVICE, myDev);
+			      	          	  	        String EXTRA_PAIRING_VARIANT = "android.bluetooth.device.extra.PAIRING_VARIANT";
+			      	          	  	        int PAIRING_VARIANT_PIN = 0;
+			      	          	  	        intent.putExtra(EXTRA_PAIRING_VARIANT, PAIRING_VARIANT_PIN);
+			      	          	  	        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			      	          	  	        activity.startActivity(intent);
+	      	          	  					try {
+	      	          	  						  connection.setDevice(myDev);
+	      	          	  					} catch (IOException e) {
+	      	          	  						  e.printStackTrace();
+	      	          	  						  pairDialog.dismiss();
+				      	                  		  return;
+	      	          	  					}
+	      	          	  					  	  setupDyIO( connection);
+				      	                          pairDialog.dismiss();
+	      	          	  				  	}
+	      	          	  			  });
+	      	          	  		  }
+	      	          	  	}).start();
+                	    }
+                	});
+                	new Thread(new Runnable() {
+	          	  		  public void run() {
+	          	  			connect.post(new Runnable() {
+	          	  				  public void run() {
+	          	  					pairDialog = builder.create();
+	          	                	pairDialog.show();
+	          	  				  }
+	          	  			  });
+	          	  		  }
+	          	  	}).start();
+                	
                 	return;
                 }
                 try {
         			connection.setDevice(myDev);
         		} catch (IOException e) {
         			e.printStackTrace();
+        			dialog.dismiss();
         			return;
         		}
                 setupDyIO( connection);
@@ -216,7 +281,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     		       .setCancelable(false)
     		       .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
     		           public void onClick(DialogInterface dialog, int id) {
-    		                myActivity.finish();
+    		                activity.finish();
     		           }
     		       })
     		       .setNegativeButton("Retry", new DialogInterface.OnClickListener() {
@@ -261,13 +326,14 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     	// TODO Auto-generated method stub
     	super.onStop();
     	System.out.println("Calling on stop");
-    	//onDestroy();
+    	onDestroy();
     }
     @Override
     protected void onPause() {
     	// TODO Auto-generated method stub
     	super.onPause();
     	System.out.println("Calling on pause");
+    	onDestroy();
     }
 
 

@@ -3,6 +3,7 @@ package com.neuronrobotics.android;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
@@ -10,17 +11,21 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 import com.neuronrobotics.sdk.common.BowlerAbstractConnection;
 import com.neuronrobotics.sdk.common.Tracer;
+import com.neuronrobotics.sdk.util.ThreadUtil;
 
 public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 	private Activity activity;
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothDevice device;
 	private BluetoothSocket mmSocket;
-	
+	private ArrayList<BluetoothDevice> unpaired= new ArrayList<BluetoothDevice> ();
 	
 	private static final int REQUEST_ENABLE_BT = 2;
 	public static final int REQUEST_CONNECT_DEVICE = 1;
@@ -65,6 +70,60 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 	public Set<BluetoothDevice> getPairedDevices(){
 		enable();
 		return mBluetoothAdapter.getBondedDevices();
+	}
+	public ArrayList<BluetoothDevice> getVisibleDevices(){
+		final Set<BluetoothDevice> paired = getPairedDevices();
+		final BroadcastReceiver mReceiver = new BroadcastReceiver() 
+        { 
+			@Override
+            public void onReceive(Context context, Intent intent) 
+            {
+                String action = intent.getAction(); 
+                // When discovery finds a device 
+                if (BluetoothDevice.ACTION_FOUND.equals(action)) 
+                {
+	                // Get the BluetoothDevice object from the Intent 
+	                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+	                System.err.println("BlueTooth Testing "+device.getName() + "\n"+ device.getAddress()); 
+	                boolean isPaired = false;
+	                for(BluetoothDevice d:paired){
+	                	if(d.getAddress() == device.getAddress()){
+	                		isPaired =true;
+	                	}
+	                }
+	                if(!isPaired){
+	                	if(!unpaired.contains(device)){
+	                		unpaired.add(device);
+	                		System.out.println("Adding "+device.getName());
+	                	}
+	                }
+                }
+            } 
+        };
+
+        //String aDiscoverable = BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
+        //activity.startActivityForResult(new Intent(aDiscoverable),DISCOVERY_REQUEST);
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND); 
+        activity.registerReceiver(mReceiver, filter); 
+        mBluetoothAdapter.startDiscovery();
+        long start = System.currentTimeMillis();
+        boolean waiting = true;
+        while(waiting){
+        	ThreadUtil.wait(100);
+        	if((System.currentTimeMillis()-start)>5000){
+        		waiting = false;
+        	}
+        	for(int i=0;i<unpaired.size();i++){
+        		BluetoothDevice d = unpaired.get(i);
+        		if(d!= null){
+	        		if(d.getName().contains("NR") || d.getName().contains("FireFly") ||d.getName().contains("linvor")||d.getName().contains("DyIO")   ){
+	        			waiting=false;
+	        		}
+        		}
+        	}
+        }
+		
+		return unpaired;
 	}
 	
 	public void setDevice(BluetoothDevice d) throws IOException {
