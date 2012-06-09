@@ -7,6 +7,9 @@ import com.neuronrobotics.sdk.dyio.DyIO;
 import com.neuronrobotics.sdk.dyio.DyIOChannel;
 import com.neuronrobotics.sdk.dyio.DyIOChannelEvent;
 import com.neuronrobotics.sdk.dyio.IChannelEventListener;
+import com.neuronrobotics.sdk.dyio.IDyIOEvent;
+import com.neuronrobotics.sdk.dyio.IDyIOEventListener;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -22,7 +25,7 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.ViewFlipper;
 
-public class AndroidNRConsoleActivity extends Activity implements IChannelEventListener {
+public class AndroidNRConsoleActivity extends Activity implements IChannelEventListener, IDyIOEventListener {
     /** Called when the activity is first created. */
 	AndroidNRConsoleActivity activity;
 	DyIO dyio;
@@ -201,6 +204,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	        for(DyIOChannel c:dyio.getChannels()){
 	        	c.addChannelEventListener(this);
 	        }
+	        dyio.addDyIOEventListener(this);
 	        setRunningButtons(true);
     	}catch(Exception ex){
         	if(dialog !=null){
@@ -250,7 +254,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     	setRunningButtons(false);  
     	dyio.disconnect();
     	content="";
-    	addToDisplay("NR-Console");
+    	addToDisplay("NR-Console Log");
     }
     @Override
     protected void onStop() {
@@ -270,6 +274,11 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	@Override
 	public void onChannelEvent(DyIOChannelEvent p) {
 		addToDisplay("Ch="+p.getChannel().getChannelNumber()+" "+p.getChannel().getMode()+" value="+p.getValue());
+	}
+	@Override
+	public void onDyIOEvent(IDyIOEvent arg0) {
+		// TODO Auto-generated method stub
+		addToDisplay("Ev="+arg0);
 	}
 
 }
