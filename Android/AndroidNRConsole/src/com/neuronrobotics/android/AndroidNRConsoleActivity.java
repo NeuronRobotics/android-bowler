@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
+import com.neuronrobotics.sdk.common.IConnectionEventListener;
 import com.neuronrobotics.sdk.dyio.DyIO;
 import com.neuronrobotics.sdk.dyio.DyIOChannel;
 import com.neuronrobotics.sdk.dyio.DyIOChannelEvent;
@@ -28,7 +29,7 @@ import android.widget.ScrollView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-public class AndroidNRConsoleActivity extends Activity implements IChannelEventListener, IDyIOEventListener {
+public class AndroidNRConsoleActivity extends Activity implements IChannelEventListener, IDyIOEventListener, IConnectionEventListener {
     /** Called when the activity is first created. */
 	private DyIO dyio;
 	private NRAndroidBluetoothConnection connection;
@@ -267,15 +268,21 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     	try{
 	        dyio = new DyIO(connection);
 	        dyio.connect();
+	        if(!dyio.isAvailable()){
+	        	setRunningButtons(false); 
+	        	disconnect();
+	        	return;
+	        }
 	        addToDisplay("Running");
 	        for(DyIOChannel c:dyio.getChannels()){
 	        	c.addChannelEventListener(this);
 	        }
 	        setRunningButtons(true);
+	        dyio.addDyIOEventListener(this);
+	        dyio.addConnectionEventListener(this);
 	        if(dialog !=null){
         		dialog.dismiss();
-        	}
-	        dyio.addDyIOEventListener(this);
+	        }
     	}catch(Exception ex){
     		ex.printStackTrace();
         	if(dialog !=null){
@@ -363,16 +370,36 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 
 
 	@Override
-	public void onChannelEvent(DyIOChannelEvent p) {
-		addToDisplay("Ch="+p.getChannel().getChannelNumber()+" "+p.getChannel().getMode()+" value="+p.getValue());
+	public void onChannelEvent(final DyIOChannelEvent p) {
+		new Thread(){
+			public void run(){
+				addToDisplay("Ch="+p.getChannel().getChannelNumber()+" "+p.getChannel().getMode()+" value="+p.getValue());
+			}
+		}.start();
+		
 	}
 	@Override
-	public void onDyIOEvent(IDyIOEvent arg0) {
-		// TODO Auto-generated method stub
-		addToDisplay("Ev="+arg0);
+	public void onDyIOEvent(final IDyIOEvent arg0) {
+		new Thread(){
+			public void run(){
+				addToDisplay("Ev="+arg0);
+			}
+		}.start();
+		
 	}
 	public AndroidNRConsoleActivity getActivity() {
 		return this;
+	}
+	@Override
+	public void onConnect() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void onDisconnect() {
+		System.err.println("On disconnect called");
+    	setRunningButtons(false); 
+    	disconnect();
 	}
 
 }

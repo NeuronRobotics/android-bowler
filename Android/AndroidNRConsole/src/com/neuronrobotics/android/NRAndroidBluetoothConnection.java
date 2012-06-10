@@ -37,21 +37,17 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 	
 	public NRAndroidBluetoothConnection(Activity a) {
 		activity = a;
-		setSleepTime(20000);
+		setSleepTime(2000);
         // Get local Bluetooth adapter
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        setBluetoothAdapter(BluetoothAdapter.getDefaultAdapter());
 
         // If the adapter is null, then Bluetooth is not supported
-        if (mBluetoothAdapter == null) {
+        if (getBluetoothAdapter() == null) {
+        	System.out.println("No bluetooth hardware availible");
         	activity.finish();
             return;
         }
         enable();
-        
-//        Intent discoverableIntent = new
-//        Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-//        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 30000);
-//        activity.startActivity(discoverableIntent);
         
 	}
 	
@@ -60,7 +56,7 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 	private void enable() {
 		if(enabled)
 			return;
-		if (!mBluetoothAdapter.isEnabled()) {
+		if (!getBluetoothAdapter().isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             activity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
@@ -69,7 +65,7 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 	
 	public Set<BluetoothDevice> getPairedDevices(){
 		enable();
-		return mBluetoothAdapter.getBondedDevices();
+		return getBluetoothAdapter().getBondedDevices();
 	}
 	public ArrayList<BluetoothDevice> getVisibleDevices(){
 		final Set<BluetoothDevice> paired = getPairedDevices();
@@ -105,7 +101,7 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
         //activity.startActivityForResult(new Intent(aDiscoverable),DISCOVERY_REQUEST);
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND); 
         activity.registerReceiver(mReceiver, filter); 
-        mBluetoothAdapter.startDiscovery();
+        getBluetoothAdapter().startDiscovery();
         long start = System.currentTimeMillis();
         boolean waiting = true;
         while(waiting){
@@ -131,9 +127,9 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 			return;
 		Log.e(TAG, "+++device added: "+d.getName()+" "+d.getAddress());
 		System.out.println("setDevice Called from: "+Tracer.calledFrom()); 
-		device = mBluetoothAdapter.getRemoteDevice(d.getAddress());
+		device = getBluetoothAdapter().getRemoteDevice(d.getAddress());
 		try {
-			mBluetoothAdapter.cancelDiscovery();
+			getBluetoothAdapter().cancelDiscovery();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -180,6 +176,7 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
         		Log.e(TAG, "--Socket is null!!");
         		setDevice(device);
         	}
+        	getBluetoothAdapter().cancelDiscovery();
         	getMmSocket().connect();
 			setDataIns(new DataInputStream(getMmSocket().getInputStream()));
 			setDataOuts(new DataOutputStream(getMmSocket().getOutputStream()));
@@ -187,6 +184,7 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 			Log.e(TAG, "++++Success!");
 		} catch (IOException e) {
 			e.printStackTrace();
+			disconnect();
 		}
 		// TODO Auto-generated method stub
 		return isConnected();
@@ -196,6 +194,9 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 	public boolean reconnect() throws IOException {
 		System.out.println("reconnect Called from: "+Tracer.calledFrom()); 
 		disconnect();
+		BluetoothDevice d = device;
+		device=null;
+		setDevice(d);
 		connect();
 		return  isConnected();
 	}
@@ -204,14 +205,14 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 		System.out.println("disconnect Called from: "+Tracer.calledFrom()); 
 		if(getMmSocket()!= null) {
 			try {
+				getBluetoothAdapter().cancelDiscovery();
 				getMmSocket().close();
 				setMmSocket(null);
-				setConnected(false);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		
+		setConnected(false);
 	}
 	@Override
 	public boolean waitingForConnection() {
@@ -228,6 +229,14 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 
 	public BluetoothSocket getMmSocket() {
 		return mmSocket;
+	}
+
+	public BluetoothAdapter getBluetoothAdapter() {
+		return mBluetoothAdapter;
+	}
+
+	public void setBluetoothAdapter(BluetoothAdapter mBluetoothAdapter) {
+		this.mBluetoothAdapter = mBluetoothAdapter;
 	}
 
 }
