@@ -30,7 +30,6 @@ import android.widget.ViewFlipper;
 
 public class AndroidNRConsoleActivity extends Activity implements IChannelEventListener, IDyIOEventListener {
     /** Called when the activity is first created. */
-	private AndroidNRConsoleActivity activity;
 	private DyIO dyio;
 	private NRAndroidBluetoothConnection connection;
 	private String content="";
@@ -51,7 +50,6 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        activity=this;
         setContentView(R.layout.main);
         content="";
         
@@ -68,7 +66,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
         disconnect.setEnabled(false);
         start.setEnabled(false);
         addToDisplay("NR-Console");
-        connection = new NRAndroidBluetoothConnection( activity);
+        connection = new NRAndroidBluetoothConnection( getActivity());
         connect.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	connect();
@@ -119,7 +117,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     	if(dialog !=null){
     		dialog.dismiss();
     	}
-    	dialog = ProgressDialog.show(activity, "", 
+    	dialog = ProgressDialog.show(getActivity(), "", 
                 "Connecting. Please wait...", true);
     	addToDisplay("Connecting...");
     	new Thread(){
@@ -145,8 +143,13 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
                 	}
                 	dialog.dismiss();
                 	
-                	builder = new AlertDialog.Builder(activity);
+                	builder = new AlertDialog.Builder(getActivity());
                 	builder.setTitle("Select Device to Pair");
+                	builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+ 	    		           public void onClick(DialogInterface d, int id) {
+ 	    		        	   	pairDialog.dismiss();
+	  	    		           }
+	  	    		});
                 	unpairedStrings = new String[unpaired.size()];
                 	for(int i=0;i<unpaired.size();i++){
                 		unpairedStrings[i]=unpaired.get(i).getName();
@@ -169,7 +172,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 			      	          	  	        int PAIRING_VARIANT_PIN = 0;
 			      	          	  	        intent.putExtra(EXTRA_PAIRING_VARIANT, PAIRING_VARIANT_PIN);
 			      	          	  	        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			      	          	  	        activity.startActivity(intent);
+			      	          	  	        getActivity().startActivity(intent);
 	      	          	  					try {
 	      	          	  						  connection.setDevice(myDev);
 	      	          	  					} catch (IOException e) {
@@ -217,7 +220,6 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     @Override
     protected void onResume() {
     	super.onResume();
-        activity=this;
 		
     }
     
@@ -269,40 +271,55 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	        for(DyIOChannel c:dyio.getChannels()){
 	        	c.addChannelEventListener(this);
 	        }
-	        dyio.addDyIOEventListener(this);
 	        setRunningButtons(true);
+	        if(dialog !=null){
+        		dialog.dismiss();
+        	}
+	        dyio.addDyIOEventListener(this);
     	}catch(Exception ex){
+    		ex.printStackTrace();
         	if(dialog !=null){
         		dialog.dismiss();
         	}
+        	disconnect();
     		setRunningButtons(false);	
-    		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    		builder.setMessage("Error connecting")
-    		       .setCancelable(false)
-    		       .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
-    		           public void onClick(DialogInterface dialog, int id) {
-    		                activity.finish();
-    		           }
-    		       })
-    		       .setNegativeButton("Retry", new DialogInterface.OnClickListener() {
-    		           public void onClick(DialogInterface d, int id) {
-    		                d.cancel();
-    		                connect();
-    		           }
-    		       });
-    		AlertDialog alert = builder.create();
-    		alert.show();
+    		new Thread(new Runnable() {
+	  	  		  public void run() {
+	  	  			connect.post(new Runnable() {
+	  	  				  public void run() {
+	  	  		    		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		  	  	    		builder.setMessage("Error connecting")
+		  	  	    		       .setCancelable(false)
+		  	  	    		       .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+		  	  	    		           public void onClick(DialogInterface dialog, int id) {
+		  	  	    		                getActivity().finish();
+		  	  	    		           }
+		  	  	    		       })
+		  	  	    		       .setNegativeButton("Retry", new DialogInterface.OnClickListener() {
+		  	  	    		           public void onClick(DialogInterface d, int id) {
+		  	  	    		                d.cancel();
+		  	  	    		                connect();
+		  	  	    		           }
+		  	  	    		       });
+	  	  					AlertDialog alert = builder.create();
+	  	  					alert.show();
+	  	  				  }
+	  	  			  });
+	  	  		  }
+	  	  	}).start();
+    		
     	}
     }
     private void addToDisplay(String s){
     	//System.out.println(s);
     	content+=s+"\n";
     	//This is some hacky shit to get around the single threading issue
+    	final String str = new String(content.getBytes());
     	new Thread(new Runnable() {
     		  public void run() {
     			  mTitle.post(new Runnable() {
     				  public void run() {
-    					  mTitle.setText(content);
+    					  mTitle.setText(str);
     					  mTitle.setSelection(mTitle.getText().length()-1);
     				  }
     			  });
@@ -311,15 +328,22 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     	
     }
     
+    private void disconnect(){
+    	if(dyio != null){
+	        for(DyIOChannel c:dyio.getChannels()){
+	        	c.removeChannelEventListener(this);
+	        }
+    		dyio.disconnect();
+    	}
+    }
+    
     @Override
     protected void onDestroy() {
     	// TODO Auto-generated method stub
     	super.onDestroy();
     	System.err.println("Closing Bluetooth");
     	setRunningButtons(false); 
-    	if(dyio != null)
-    		dyio.disconnect();
-    	content="";
+    	disconnect();
     	addToDisplay("NR-Console Log");
     }
     @Override
@@ -346,6 +370,9 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	public void onDyIOEvent(IDyIOEvent arg0) {
 		// TODO Auto-generated method stub
 		addToDisplay("Ev="+arg0);
+	}
+	public AndroidNRConsoleActivity getActivity() {
+		return this;
 	}
 
 }
