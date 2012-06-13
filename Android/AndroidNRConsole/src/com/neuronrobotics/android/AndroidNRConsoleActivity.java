@@ -271,6 +271,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	        getDyio().connect();
 	        if(!getDyio().isAvailable()){
 	        	setRunningButtons(false); 
+	        	addToDisplay("Connection failed, device unavailible");
 	        	disconnect();
 	        	return;
 	        }
