@@ -36,7 +36,8 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	private String content="";
 	private Button connect;
 	private Button test;
-	private Button start;
+	private Button nrconsoleMainStart;
+	private Button hexapodStart;
 	private Button backToConnections;
 	private Button disconnect;
 	private EditText mTitle;
@@ -48,6 +49,8 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	private AlertDialog pairDialog;
 	private AlertDialog.Builder builder ;
 	
+	private HexapodController hexapodMain;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +60,8 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
         connect = (Button) findViewById(R.id.connect);
         disconnect = (Button) findViewById(R.id.disconnect);
         test = (Button) findViewById(R.id.test);
-        start= (Button) findViewById(R.id.start);
+        nrconsoleMainStart= (Button) findViewById(R.id.start);
+        hexapodStart= (Button) findViewById(R.id.hexapodStart);
         
         mTitle = (EditText) findViewById(R.id.display);
         mTitle.setKeyListener(null);
@@ -65,7 +69,10 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
         
         test.setEnabled(false);
         disconnect.setEnabled(false);
-        start.setEnabled(false);
+        nrconsoleMainStart.setEnabled(false);
+        hexapodStart.setEnabled(false);
+        
+        
         addToDisplay("NR-Console");
         connection = new NRAndroidBluetoothConnection( getActivity());
         connect.setOnClickListener(new View.OnClickListener() {
@@ -89,7 +96,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	       		avg=0;
 	       		long start = System.currentTimeMillis();
 	       		for(i=0;i<10;i++) {
-	       			dyio.ping();
+	       			getDyio().ping();
 	       			double ms=System.currentTimeMillis()-start;
 	       			avg +=ms;
 	       			start = System.currentTimeMillis();
@@ -98,11 +105,11 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	       		addToDisplay("Average cycle time for ping: "+(avg/i)+" ms");
             }
         });
-        start.setOnClickListener(new View.OnClickListener() {
+        nrconsoleMainStart.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	System.out.println("NR-Console Start");
             	switcher.showNext();
-            	backToConnections = (Button) findViewById(R.id.backToConnections);
+            	backToConnections = (Button) findViewById(R.id.backToConnectionsNR);
             	backToConnections.setOnClickListener(new View.OnClickListener() {
 	                 public void onClick(View v) {
 	              	    System.out.println("NR-Console");
@@ -112,6 +119,23 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
             }
         });
         
+        hexapodStart.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	switcher.showNext();
+            	switcher.showNext();
+            	hexapodMain.start(getDyio());
+            	backToConnections = (Button) getActivity().findViewById(R.id.backToConnectionsHex);
+            	backToConnections.setOnClickListener(new View.OnClickListener() {
+                     public void onClick(View v) {
+                  	    switcher.showPrevious();
+                  	    switcher.showPrevious();
+                  	    hexapodMain.stop();
+                     }
+            	});
+            }
+        });
+        
+        hexapodMain = new HexapodController(getActivity());
         
     }
     private void connect(){
@@ -225,61 +249,38 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     }
     
     private void setRunningButtons(final boolean b){
-    	new Thread(new Runnable() {
-	  		  public void run() {
-	  			test.post(new Runnable() {
-	  				  public void run() {
-	  					test.setEnabled(b);
-	  				  }
-	  			  });
-	  		  }
-	  	}).start();
-
-        new Thread(new Runnable() {
-	  		  public void run() {
-	  			start.post(new Runnable() {
-	  				  public void run() {
-	  					start.setEnabled(b);
-	  				  }
-	  			  });
-	  		  }
-	  	}).start();
         new Thread(new Runnable() {
 	  		  public void run() {
 	  			connect.post(new Runnable() {
 	  				  public void run() {
 	  					connect.setEnabled(!b);
-	  				  }
-	  			  });
-	  		  }
-	  	}).start();
-        new Thread(new Runnable() {
-	  		  public void run() {
-	  			disconnect.post(new Runnable() {
-	  				  public void run() {
+	  					nrconsoleMainStart.setEnabled(b);
 	  					disconnect.setEnabled(b);
+	  					test.setEnabled(b);
+	  					hexapodStart.setEnabled(b);
 	  				  }
 	  			  });
 	  		  }
 	  	}).start();
+
     }
     
     private void setupDyIO(NRAndroidBluetoothConnection connection){
     	try{
-	        dyio = new DyIO(connection);
-	        dyio.connect();
-	        if(!dyio.isAvailable()){
+	        setDyio(new DyIO(connection));
+	        getDyio().connect();
+	        if(!getDyio().isAvailable()){
 	        	setRunningButtons(false); 
 	        	disconnect();
 	        	return;
 	        }
 	        addToDisplay("Running");
-	        for(DyIOChannel c:dyio.getChannels()){
+	        for(DyIOChannel c:getDyio().getChannels()){
 	        	c.addChannelEventListener(this);
 	        }
 	        setRunningButtons(true);
-	        dyio.addDyIOEventListener(this);
-	        dyio.addConnectionEventListener(this);
+	        getDyio().addDyIOEventListener(this);
+	        getDyio().addConnectionEventListener(this);
 	        if(dialog !=null){
         		dialog.dismiss();
 	        }
@@ -336,11 +337,11 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     }
     
     private void disconnect(){
-    	if(dyio != null){
-	        for(DyIOChannel c:dyio.getChannels()){
+    	if(getDyio() != null){
+	        for(DyIOChannel c:getDyio().getChannels()){
 	        	c.removeChannelEventListener(this);
 	        }
-    		dyio.disconnect();
+    		getDyio().disconnect();
     	}
     }
     
@@ -369,7 +370,6 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     }
 
 
-	@Override
 	public void onChannelEvent(final DyIOChannelEvent p) {
 		new Thread(){
 			public void run(){
@@ -378,7 +378,6 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 		}.start();
 		
 	}
-	@Override
 	public void onDyIOEvent(final IDyIOEvent arg0) {
 		new Thread(){
 			public void run(){
@@ -390,16 +389,20 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	public AndroidNRConsoleActivity getActivity() {
 		return this;
 	}
-	@Override
 	public void onConnect() {
 		// TODO Auto-generated method stub
 		
 	}
-	@Override
 	public void onDisconnect() {
 		System.err.println("On disconnect called");
     	setRunningButtons(false); 
     	disconnect();
+	}
+	public DyIO getDyio() {
+		return dyio;
+	}
+	public void setDyio(DyIO dyio) {
+		this.dyio = dyio;
 	}
 
 }
