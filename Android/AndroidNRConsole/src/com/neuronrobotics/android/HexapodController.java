@@ -2,6 +2,9 @@ package com.neuronrobotics.android;
 
 import com.neuronrobotics.sdk.addons.walker.BasicWalker;
 import com.neuronrobotics.sdk.dyio.DyIO;
+import com.neuronrobotics.sdk.dyio.DyIOPowerEvent;
+import com.neuronrobotics.sdk.dyio.IDyIOEvent;
+import com.neuronrobotics.sdk.dyio.IDyIOEventListener;
 import com.neuronrobotics.sdk.util.ThreadUtil;
 
 import android.app.Activity;
@@ -11,12 +14,10 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class HexapodController {
+public class HexapodController implements IDyIOEventListener {
 	
 	private final Activity activity;
 	private DyIO dyio;
-	
-	private Button backToConnections;
 	
 	private Button forward;
 	private Button backward;
@@ -120,6 +121,8 @@ public class HexapodController {
 		myThread.setRunning(false);
 		resetWalker();
 		getDyio().setCachedMode(false);
+		setButtonsEnabled(false);
+		setwalkingText("Waiting...");
 	}
 	
 	public void setwalkingText(final String text) {
@@ -148,6 +151,17 @@ public class HexapodController {
 	  		  }
 	  	}).start();
 	}
+	public void setVoltage(final double volts) {
+		new Thread(new Runnable() {
+	  		  public void run() {
+	  			voltage.post(new Runnable() {
+	  				  public void run() {
+	  					voltage.setText(volts+" volts");
+	  				  }
+	  			  });
+	  		  }
+	  	}).start();
+	}
 	
 	private void resetWalker() {
 		getWalker().initialize();
@@ -171,6 +185,8 @@ public class HexapodController {
 
 	public void setDyio(DyIO dyio) {
 		this.dyio = dyio;
+		dyio.addDyIOEventListener(this);
+		setVoltage(dyio.getBatteryVoltage(true));
 	}
 
 	public BasicWalker getWalker() {
@@ -189,6 +205,7 @@ public class HexapodController {
 			
 			resetWalker();
 			setButtonsEnabled(true);
+			int loop = 0;
 			while(isRunning() && getDyio().isAvailable()) {
 				if(getWalkState() != WalkingState.STOPPED)
 					setwalkingText(getWalkState().toString());
@@ -225,7 +242,11 @@ public class HexapodController {
 						Thread.sleep(time);
 				} catch (InterruptedException e) {
 				}
-				//System.out.println("Loop");
+				loop++;
+				if(loop>10) {
+					loop=0;
+					setVoltage(dyio.getBatteryVoltage(true));
+				}
 			}
 		}
 		private double getXinc() {
@@ -250,6 +271,13 @@ public class HexapodController {
 //			if(loopTime<50)
 //				loopTime=50;
 			this.loopTime = loopTime;
+		}
+	}
+
+	public void onDyIOEvent(IDyIOEvent arg0) {
+		if(arg0.getClass()== DyIOPowerEvent.class) {
+			final DyIOPowerEvent ev = (DyIOPowerEvent)arg0;
+			setVoltage(ev.getVoltage());
 		}
 	}
 
