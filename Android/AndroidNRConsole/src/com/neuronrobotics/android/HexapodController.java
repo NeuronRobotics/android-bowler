@@ -40,6 +40,12 @@ public class HexapodController {
 		right 	= (Button) getActivity().findViewById(R.id.turn_right);
 		reset 	= (Button) getActivity().findViewById(R.id.reset_hex);
 		
+		forward.setEnabled(false);
+		backward.setEnabled(false);
+		left.setEnabled(false);
+		right.setEnabled(false);
+		reset.setEnabled(false);
+		
 		forward.setOnTouchListener(new OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -89,6 +95,16 @@ public class HexapodController {
 			}
 		});
 		
+		reset.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	new Thread() {
+            		public void run() {
+            			resetWalker();
+            		}
+            	}.start();
+            }
+        });
+		
 		walkStatus = (TextView)getActivity().findViewById(R.id.hex_status);
 		voltage = (TextView)getActivity().findViewById(R.id.voltage);
 		
@@ -117,9 +133,24 @@ public class HexapodController {
 	  		  }
 	  	}).start();
 	}
+	public void setButtonsEnabled(final boolean b) {
+        new Thread(new Runnable() {
+	  		  public void run() {
+	  			forward.post(new Runnable() {
+	  				  public void run() {
+	  					forward.setEnabled(b);
+	  					backward.setEnabled(b);
+	  					left.setEnabled(b);
+	  					right.setEnabled(b);
+	  					reset.setEnabled(b);
+	  				  }
+	  			  });
+	  		  }
+	  	}).start();
+	}
 	
 	private void resetWalker() {
-		
+		getWalker().initialize();
 	}
 
 	public Activity getActivity() {
@@ -152,10 +183,12 @@ public class HexapodController {
 
 	private class walkingThread extends Thread{
 		private boolean running = true;
-		private long loopTime = 100;
+		private long loopTime = 200;
 		public void run() {
 			setWalker(new BasicWalker(getDyio()));
-			getWalker().initialize();
+			
+			resetWalker();
+			setButtonsEnabled(true);
 			while(isRunning() && getDyio().isAvailable()) {
 				if(getWalkState() != WalkingState.STOPPED)
 					setwalkingText(getWalkState().toString());
@@ -164,22 +197,22 @@ public class HexapodController {
 				long start = System.currentTimeMillis();
 				switch(getWalkState()) {
 				case FORWARD:
-					getWalker().incrementAllY(-1*.2,getLoopTime());
+					getWalker().incrementAllY(-1*getYinc(),getLoopTime()/1000);
 					break;
 				case BACKWARD:
-					getWalker().incrementAllY(getYinc(), getLoopTime());
+					getWalker().incrementAllY(getYinc(), getLoopTime()/1000);
 					break;
 				case TURN_LEFT:
-					getWalker().turnBody(getTurnDeg(), getLoopTime());
+					getWalker().turnBody(-1*getTurnDeg(), getLoopTime()/1000);
 					break;
 				case TURN_RIGHT:
-					getWalker().turnBody(-1*getTurnDeg(), getLoopTime());
+					getWalker().turnBody(getTurnDeg(), getLoopTime()/1000);
 					break;
 				case STRAIF_LEFT:
-					getWalker().incrementAllX(-1*getXinc(), getLoopTime());
+					getWalker().incrementAllX(-1*getXinc(), getLoopTime()/1000);
 					break;
 				case STRAIF_RIGHT:
-					getWalker().incrementAllX(getXinc(), getLoopTime());
+					getWalker().incrementAllX(getXinc(), getLoopTime()/1000);
 					break;
 				default:
 					break;
@@ -187,14 +220,16 @@ public class HexapodController {
 				//Next loop should be as long as last one took
 				//setLoopTime(System.currentTimeMillis()-start);
 				try {
-					Thread.sleep(getLoopTime());
+					long time = (long) getLoopTime()-(System.currentTimeMillis()-start);
+					if(time>0)
+						Thread.sleep(time);
 				} catch (InterruptedException e) {
 				}
+				//System.out.println("Loop");
 			}
 		}
 		private double getXinc() {
-			// TODO Auto-generated method stub
-			return .2;
+			return getYinc();
 		}
 		private double getTurnDeg() {
 			return 5;
@@ -208,7 +243,7 @@ public class HexapodController {
 		public void setRunning(boolean running) {
 			this.running = running;
 		}
-		public long getLoopTime() {
+		public double getLoopTime() {
 			return loopTime;
 		}
 		public void setLoopTime(long loopTime) {
