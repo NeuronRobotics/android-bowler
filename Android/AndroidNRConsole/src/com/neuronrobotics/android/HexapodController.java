@@ -157,29 +157,39 @@ public class HexapodController {
 			setWalker(new BasicWalker(getDyio()));
 			getWalker().initialize();
 			while(isRunning() && getDyio().isAvailable()) {
-				setwalkingText(getWalkState().toString());
+				if(getWalkState() != WalkingState.STOPPED)
+					setwalkingText(getWalkState().toString());
+				else
+					setwalkingText("Ready...");
 				long start = System.currentTimeMillis();
 				switch(getWalkState()) {
 				case FORWARD:
 					getWalker().incrementAllY(-1*.2,getLoopTime());
+					break;
 				case BACKWARD:
 					getWalker().incrementAllY(getYinc(), getLoopTime());
+					break;
 				case TURN_LEFT:
 					getWalker().turnBody(getTurnDeg(), getLoopTime());
+					break;
 				case TURN_RIGHT:
 					getWalker().turnBody(-1*getTurnDeg(), getLoopTime());
+					break;
 				case STRAIF_LEFT:
 					getWalker().incrementAllX(-1*getXinc(), getLoopTime());
+					break;
 				case STRAIF_RIGHT:
 					getWalker().incrementAllX(getXinc(), getLoopTime());
+					break;
 				default:
-					try {
-						Thread.sleep(getLoopTime());
-					} catch (InterruptedException e) {
-					}	
+					break;
 				}
 				//Next loop should be as long as last one took
-				setLoopTime(System.currentTimeMillis()-start);
+				//setLoopTime(System.currentTimeMillis()-start);
+				try {
+					Thread.sleep(getLoopTime());
+				} catch (InterruptedException e) {
+				}
 			}
 		}
 		private double getXinc() {
@@ -202,6 +212,8 @@ public class HexapodController {
 			return loopTime;
 		}
 		public void setLoopTime(long loopTime) {
+//			if(loopTime<50)
+//				loopTime=50;
 			this.loopTime = loopTime;
 		}
 	}

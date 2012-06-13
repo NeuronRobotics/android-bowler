@@ -12,17 +12,17 @@ public enum WalkingState {
 	public String toString() {
 		switch(this) {
 		case FORWARD:
-			return "Forwards";
+			return "Walking Forwards";
 		case BACKWARD:
-			return "Backwards";
+			return "Walking Backwards";
 		case TURN_LEFT:
-			return "Turn Left";
+			return "Turning Left";
 		case TURN_RIGHT:
-			return "Turn Right";
+			return "Turning Right";
 		case STRAIF_LEFT:
-			return "Straif Left";
+			return "Straifing Left";
 		case STRAIF_RIGHT:
-			return "Straig Right";
+			return "Straifing Right";
 		default:
 			return "Stopped";
 		}
