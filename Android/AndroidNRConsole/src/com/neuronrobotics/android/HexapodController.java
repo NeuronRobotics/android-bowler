@@ -1,5 +1,6 @@
 package com.neuronrobotics.android;
 
+import com.neuronrobotics.sdk.addons.walker.BasicWalker;
 import com.neuronrobotics.sdk.dyio.DyIO;
 import com.neuronrobotics.sdk.util.ThreadUtil;
 
@@ -28,7 +29,8 @@ public class HexapodController {
 	private TextView voltage;
 	private WalkingState walkState = WalkingState.STOPPED;
 	
-	walkingThread myThread;
+	private walkingThread myThread;
+	private BasicWalker walker;
 
 	public HexapodController(Activity activity) {
 		this.activity = activity;
@@ -93,7 +95,7 @@ public class HexapodController {
 	}
 	
 	public void start(DyIO dyio) {
-		this.dyio = dyio;
+		setDyio(dyio);
 		System.out.println("Hexapod Starting");
 		myThread = new walkingThread();
 		myThread.start();
@@ -101,6 +103,7 @@ public class HexapodController {
 	public void stop() {
 		myThread.setRunning(false);
 		resetWalker();
+		getDyio().setCachedMode(false);
 	}
 	
 	public void setwalkingText(final String text) {
@@ -131,19 +134,75 @@ public class HexapodController {
 		this.walkState = walkState;
 	}
 
+	public DyIO getDyio() {
+		return dyio;
+	}
+
+	public void setDyio(DyIO dyio) {
+		this.dyio = dyio;
+	}
+
+	public BasicWalker getWalker() {
+		return walker;
+	}
+
+	public void setWalker(BasicWalker walker) {
+		this.walker = walker;
+	}
+
 	private class walkingThread extends Thread{
 		private boolean running = true;
+		private long loopTime = 100;
 		public void run() {
-			while(isRunning()) {
-				ThreadUtil.wait(30);
+			setWalker(new BasicWalker(getDyio()));
+			getWalker().initialize();
+			while(isRunning() && getDyio().isAvailable()) {
 				setwalkingText(getWalkState().toString());
+				long start = System.currentTimeMillis();
+				switch(getWalkState()) {
+				case FORWARD:
+					getWalker().incrementAllY(-1*.2,getLoopTime());
+				case BACKWARD:
+					getWalker().incrementAllY(getYinc(), getLoopTime());
+				case TURN_LEFT:
+					getWalker().turnBody(getTurnDeg(), getLoopTime());
+				case TURN_RIGHT:
+					getWalker().turnBody(-1*getTurnDeg(), getLoopTime());
+				case STRAIF_LEFT:
+					getWalker().incrementAllX(-1*getXinc(), getLoopTime());
+				case STRAIF_RIGHT:
+					getWalker().incrementAllX(getXinc(), getLoopTime());
+				default:
+					try {
+						Thread.sleep(getLoopTime());
+					} catch (InterruptedException e) {
+					}	
+				}
+				//Next loop should be as long as last one took
+				setLoopTime(System.currentTimeMillis()-start);
 			}
+		}
+		private double getXinc() {
+			// TODO Auto-generated method stub
+			return .2;
+		}
+		private double getTurnDeg() {
+			return 5;
+		}
+		private double getYinc() {
+			return .2;
 		}
 		public boolean isRunning() {
 			return running;
 		}
 		public void setRunning(boolean running) {
 			this.running = running;
+		}
+		public long getLoopTime() {
+			return loopTime;
+		}
+		public void setLoopTime(long loopTime) {
+			this.loopTime = loopTime;
 		}
 	}
 

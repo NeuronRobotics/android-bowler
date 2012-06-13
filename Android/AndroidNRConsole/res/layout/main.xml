@@ -20,9 +20,13 @@
             <Button
                 android:id="@+id/connect"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="80dp"
                 android:text="Connect DyIO" />
-
+            <Button
+                android:id="@+id/disconnect"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Disconnect" />
             <Button
                 android:id="@+id/test"
                 android:layout_width="fill_parent"
@@ -62,9 +66,13 @@
 
                         <requestFocus />
                     </EditText>
+
+
+					
                 </LinearLayout>
                 
             </ScrollView>
+
         </LinearLayout>
 		<include
 			layout="@layout/nrconsole_main"
@@ -74,11 +82,5 @@
 			android:id="@+id/hexapod_main" />
 		
     </ViewFlipper>
-
-    <Button
-        android:id="@+id/disconnect"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Disconnect" />
 
 </LinearLayout>
