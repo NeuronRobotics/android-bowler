@@ -35,7 +35,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	private NRAndroidBluetoothConnection connection;
 	private String content="";
 	private Button connect;
-	private Button test;
+	//private Button test;
 	private Button nrconsoleMainStart;
 	private Button hexapodStart;
 	private Button backToConnections;
@@ -59,7 +59,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
         
         connect = (Button) findViewById(R.id.connect);
         disconnect = (Button) findViewById(R.id.disconnect);
-        test = (Button) findViewById(R.id.test);
+        //test = (Button) findViewById(R.id.test);
         nrconsoleMainStart= (Button) findViewById(R.id.start);
         hexapodStart= (Button) findViewById(R.id.hexapodStart);
         
@@ -67,7 +67,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
         mTitle.setKeyListener(null);
         switcher = (ViewFlipper) findViewById(R.id.startSwitch);
         
-        test.setEnabled(false);
+        //test.setEnabled(false);
         disconnect.setEnabled(false);
         nrconsoleMainStart.setEnabled(false);
         hexapodStart.setEnabled(false);
@@ -88,23 +88,23 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
             }
         });
         
-        test.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-         	    System.out.println("Testing");
-	       		double avg=0;
-	       		int i;
-	       		avg=0;
-	       		long start = System.currentTimeMillis();
-	       		for(i=0;i<10;i++) {
-	       			getDyio().ping();
-	       			double ms=System.currentTimeMillis()-start;
-	       			avg +=ms;
-	       			start = System.currentTimeMillis();
-	       			//System.out.println("Average cycle time: "+(int)(avg/i)+"ms\t\t\t this loop was: "+ms);
-	       		}
-	       		addToDisplay("Average cycle time for ping: "+(avg/i)+" ms");
-            }
-        });
+//        test.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//         	    System.out.println("Testing");
+//	       		double avg=0;
+//	       		int i;
+//	       		avg=0;
+//	       		long start = System.currentTimeMillis();
+//	       		for(i=0;i<10;i++) {
+//	       			getDyio().ping();
+//	       			double ms=System.currentTimeMillis()-start;
+//	       			avg +=ms;
+//	       			start = System.currentTimeMillis();
+//	       			//System.out.println("Average cycle time: "+(int)(avg/i)+"ms\t\t\t this loop was: "+ms);
+//	       		}
+//	       		addToDisplay("Average cycle time for ping: "+(avg/i)+" ms");
+//            }
+//        });
         nrconsoleMainStart.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	System.out.println("NR-Console Start");
@@ -256,7 +256,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	  					connect.setEnabled(!b);
 	  					nrconsoleMainStart.setEnabled(b);
 	  					disconnect.setEnabled(b);
-	  					test.setEnabled(b);
+	  					//test.setEnabled(b);
 	  					hexapodStart.setEnabled(b);
 	  				  }
 	  			  });
