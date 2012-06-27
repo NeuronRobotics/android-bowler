@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import com.neuronrobotics.sdk.common.IConnectionEventListener;
+import com.neuronrobotics.sdk.common.Tracer;
 import com.neuronrobotics.sdk.dyio.DyIO;
 import com.neuronrobotics.sdk.dyio.DyIOChannel;
 import com.neuronrobotics.sdk.dyio.DyIOChannelEvent;
+import com.neuronrobotics.sdk.dyio.DyIORegestry;
 import com.neuronrobotics.sdk.dyio.IChannelEventListener;
 import com.neuronrobotics.sdk.dyio.IDyIOEvent;
 import com.neuronrobotics.sdk.dyio.IDyIOEventListener;
@@ -18,6 +20,7 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -31,7 +34,6 @@ import android.widget.ViewFlipper;
 
 public class AndroidNRConsoleActivity extends Activity implements IChannelEventListener, IDyIOEventListener, IConnectionEventListener {
     /** Called when the activity is first created. */
-	private DyIO dyio;
 	private NRAndroidBluetoothConnection connection;
 	private String content="";
 	private Button connect;
@@ -50,6 +52,62 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	private AlertDialog.Builder builder ;
 	
 	private HexapodController hexapodMain;
+	
+	
+    @Override
+    protected void onDestroy() {
+    	// TODO Auto-generated method stub
+    	super.onDestroy();
+    	System.out.println("On Destroy");
+    }
+    @Override
+    protected void onStop() {
+    	// TODO Auto-generated method stub
+    	super.onStop();
+    	System.out.println("Calling on stop");
+
+    }
+    @Override
+    protected void onPause() {
+    	// TODO Auto-generated method stub
+    	super.onPause();
+    	System.out.println("Calling on pause");
+
+    }
+	
+    @Override
+    protected void onResume() {
+    	super.onResume();
+		System.out.println("On Resume");
+
+    }
+    @Override
+    protected void  onStart(){
+    	super.onStart();
+    	initializeGUI();
+    }
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+      super.onConfigurationChanged(newConfig);
+      System.out.println("onConfigurationChanged");
+      initializeGUI();
+    }
+    
+    private void initializeGUI() {
+    	if(DyIORegestry.get() == null) {
+			System.out.println("DyIO is null");
+			disconnect();
+			return;
+		}
+		if(DyIORegestry.get().isAvailable() == false) {
+			System.out.println("Connection is not connected");
+	    	disconnect();
+		}else {
+			System.out.println("Setting connected view!");
+			setRunningButtons(true); 
+		}
+    }
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,28 +141,10 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
         disconnect.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	addToDisplay("Disconnecting...");
-            	onDestroy();
-
+            	disconnect();
             }
         });
         
-//        test.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//         	    System.out.println("Testing");
-//	       		double avg=0;
-//	       		int i;
-//	       		avg=0;
-//	       		long start = System.currentTimeMillis();
-//	       		for(i=0;i<10;i++) {
-//	       			getDyio().ping();
-//	       			double ms=System.currentTimeMillis()-start;
-//	       			avg +=ms;
-//	       			start = System.currentTimeMillis();
-//	       			//System.out.println("Average cycle time: "+(int)(avg/i)+"ms\t\t\t this loop was: "+ms);
-//	       		}
-//	       		addToDisplay("Average cycle time for ping: "+(avg/i)+" ms");
-//            }
-//        });
         nrconsoleMainStart.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	System.out.println("NR-Console Start");
@@ -148,7 +188,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     	new Thread(){
     		public void run(){
                 //Log.enableDebugPrint(true);
-                
+                disconnect();
                 Set<BluetoothDevice>  devices = connection.getPairedDevices();
                 myDev = null;
                 for(BluetoothDevice d : devices){
@@ -242,13 +282,10 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     	setContentView(R.layout.main);
     }
     
-    @Override
-    protected void onResume() {
-    	super.onResume();
-		
-    }
+
     
     private void setRunningButtons(final boolean b){
+    	System.out.println("setRunningButtons Called from: "+Tracer.calledFrom()); 
         new Thread(new Runnable() {
 	  		  public void run() {
 	  			connect.post(new Runnable() {
@@ -267,8 +304,8 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     
     private void setupDyIO(NRAndroidBluetoothConnection connection){
     	try{
-	        setDyio(new DyIO(connection));
-	        getDyio().connect();
+	        DyIORegestry.setConnection(connection);
+	        //getDyio().connect();
 	        if(!getDyio().isAvailable()){
 	        	setRunningButtons(false); 
 	        	addToDisplay("Connection failed, device unavailible");
@@ -338,37 +375,18 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     }
     
     private void disconnect(){
+    	System.out.println("Disconnection NRConsole");
     	if(getDyio() != null){
 	        for(DyIOChannel c:getDyio().getChannels()){
 	        	c.removeChannelEventListener(this);
 	        }
     		getDyio().disconnect();
     	}
+    	addToDisplay("NR-Console Log");
+    	setRunningButtons(false); 
     }
     
-    @Override
-    protected void onDestroy() {
-    	// TODO Auto-generated method stub
-    	super.onDestroy();
-    	System.err.println("Closing Bluetooth");
-    	setRunningButtons(false); 
-    	disconnect();
-    	addToDisplay("NR-Console Log");
-    }
-    @Override
-    protected void onStop() {
-    	// TODO Auto-generated method stub
-    	super.onStop();
-    	System.out.println("Calling on stop");
-    	onDestroy();
-    }
-    @Override
-    protected void onPause() {
-    	// TODO Auto-generated method stub
-    	super.onPause();
-    	System.out.println("Calling on pause");
-    	onDestroy();
-    }
+
 
 
 	public void onChannelEvent(final DyIOChannelEvent p) {
@@ -400,10 +418,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     	disconnect();
 	}
 	public DyIO getDyio() {
-		return dyio;
-	}
-	public void setDyio(DyIO dyio) {
-		this.dyio = dyio;
+		return DyIORegestry.get();
 	}
 
 }

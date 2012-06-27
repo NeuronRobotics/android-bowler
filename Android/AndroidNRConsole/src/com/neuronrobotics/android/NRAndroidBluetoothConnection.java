@@ -51,6 +51,35 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
         
 	}
 	
+	@Override 
+	public boolean isConnected() {
+		if( super.isConnected() == false) {
+			System.out.println("Connection is already disconnected");
+		}else {
+			try {
+				if(!mBluetoothAdapter.isEnabled()) {
+					System.err.println("Adapter disconected");
+					setConnected(false);
+				}
+				if(device.getBondState()!= BluetoothDevice.BOND_BONDED) {
+					System.err.println("Device not bonded");
+					setConnected(false);
+				}
+				if(mmSocket.getRemoteDevice() != device) {
+					System.err.println("Socket not connected to device");
+					setConnected(false);
+				}
+			}catch (Exception ex) {
+				System.err.println("Connection exception");
+				ex.printStackTrace();
+				setConnected(false);
+			}
+		}
+		
+		
+		return super.isConnected();
+	}
+	
 	private boolean enabled = false;
 	
 	private void enable() {
@@ -144,24 +173,14 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 		}
 		
 	}
+
+	@Override
 	
-//	private void askUserForDevice() throws IOException {
-//		Log.e(TAG, "++Asking user for device ");
-//		Intent serverIntent = new Intent(activity, DeviceListActivity.class);
-//		activity.startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-//		Log.e(TAG, "Waiting for connection... ");
-//		while(device==null) {
-//			try {Thread.sleep(100);} catch (InterruptedException e) {}
-//			if(serverIntent.getExtras() != null) {
-//				String address = serverIntent.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-//				System.out.println(address);
-//				Log.e(TAG, "Got device "+address);
-//				BluetoothDevice device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
-//                // Attempt to connect to the device
-//                setDevice(device);
-//			}
-//		}
-//	}
+	public void setConnected(boolean b) {
+		System.out.println("setConnected Called from: "+Tracer.calledFrom()); 
+		System.out.println("setConnected set to: "+b); 
+		super.setConnected(b);
+	}
 	
 	@Override
 	public boolean connect() {
@@ -206,6 +225,15 @@ public class NRAndroidBluetoothConnection extends BowlerAbstractConnection {
 		if(getMmSocket()!= null) {
 			try {
 				getBluetoothAdapter().cancelDiscovery();
+				if(getDataIns() != null) {
+					getDataIns().close();
+				}
+				if(getDataOuts() != null) {
+					getDataOuts().close();
+				}
+				setDataIns(null);
+				setDataOuts(null);
+				
 				getMmSocket().close();
 				setMmSocket(null);
 			} catch (IOException e) {
