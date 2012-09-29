@@ -344,6 +344,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     
     private void setupDyIO(NRAndroidBluetoothConnection connection){
     	try{
+    		DyIO.disableFWCheck();
 	        DyIORegestry.setConnection(connection);
 	        //getDyio().connect();
 	        if(!getDyio().isAvailable()){
