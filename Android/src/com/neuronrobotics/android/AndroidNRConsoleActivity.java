@@ -40,7 +40,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	private Button connect;
 	//private Button test;
 	private Button nrconsoleMainStart;
-	private Button hexapodStart;
+	//private Button hexapodStart;
 	private Button backToConnections;
 	private Button disconnect;
 	private EditText mTitle;
@@ -130,7 +130,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
         connect = (Button) findViewById(R.id.connect);
         disconnect = (Button) findViewById(R.id.disconnect);
         nrconsoleMainStart= (Button) findViewById(R.id.start);
-        hexapodStart= (Button) findViewById(R.id.hexapodStart);
+        //hexapodStart= (Button) findViewById(R.id.hexapodStart);
         mTitle = (EditText) findViewById(R.id.display);
         mTitle.setKeyListener(null);
         switcher = (ViewFlipper) findViewById(R.id.startSwitch);
@@ -141,7 +141,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
          */
         disconnect.setEnabled(false);
         nrconsoleMainStart.setEnabled(false);
-        hexapodStart.setEnabled(false);
+        //hexapodStart.setEnabled(false);
         
         /**
          * Set a string to the display with the application name
@@ -198,30 +198,30 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
         /**
          * The tells the view flipper to switch to the hexapod view
          */
-        hexapodStart.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	//THis comes from where the view is defined in the XML
-            	switcher.showNext();
-            	switcher.showNext();
-            	/**
-            	 * Start the hexapod code
-            	 */
-            	hexapodMain.start(getDyio());
-            	/**
-            	 * THis sets up the listener for the back button. it is the same back button for both flipper layouts
-            	 */
-            	backToConnections = (Button) getActivity().findViewById(R.id.backToConnectionsHex);
-            	backToConnections.setOnClickListener(new View.OnClickListener() {
-                     public void onClick(View v) {
-                    	//THis comes from where the view is defined in the XML
-                  	    switcher.showPrevious();
-                  	    switcher.showPrevious();
-                  	    
-                  	    hexapodMain.stop();
-                     }
-            	});
-            }
-        });
+//        hexapodStart.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//            	//THis comes from where the view is defined in the XML
+//            	switcher.showNext();
+//            	switcher.showNext();
+//            	/**
+//            	 * Start the hexapod code
+//            	 */
+//            	hexapodMain.start(getDyio());
+//            	/**
+//            	 * THis sets up the listener for the back button. it is the same back button for both flipper layouts
+//            	 */
+//            	backToConnections = (Button) getActivity().findViewById(R.id.backToConnectionsHex);
+//            	backToConnections.setOnClickListener(new View.OnClickListener() {
+//                     public void onClick(View v) {
+//                    	//THis comes from where the view is defined in the XML
+//                  	    switcher.showPrevious();
+//                  	    switcher.showPrevious();
+//                  	    
+//                  	    hexapodMain.stop();
+//                     }
+//            	});
+//            }
+//        });
         
         
         
@@ -342,7 +342,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	  					nrconsoleMainStart.setEnabled(b);
 	  					disconnect.setEnabled(b);
 	  					//test.setEnabled(b);
-	  					hexapodStart.setEnabled(b);
+	  					//hexapodStart.setEnabled(b);
 	  				  }
 	  			  });
 	  		  }

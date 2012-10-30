@@ -32,11 +32,11 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="Start Monkey Control" />
-			<Button
+			<!--<Button
                 android:id="@+id/hexapodStart"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Start Hexapod" />
+                android:text="Start Hexapod" />-->
 
             <ScrollView
                 android:id="@+id/displayScroller"
@@ -70,7 +70,7 @@
 
         </LinearLayout>
 		<include
-			layout="@layout/nrconsole_main"
+			layout="@layout/monkey"
 			android:id="@+id/nrconsole_main" />
 		<include
 			layout="@layout/hexapod_main"
