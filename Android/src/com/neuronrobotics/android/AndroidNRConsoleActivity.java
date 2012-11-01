@@ -33,7 +33,7 @@ import android.widget.ScrollView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-public class AndroidNRConsoleActivity extends Activity implements IChannelEventListener, IDyIOEventListener, IConnectionEventListener {
+public class AndroidNRConsoleActivity extends Activity implements IConnectionEventListener {
     /** Called when the activity is first created. */
 	private NRAndroidBluetoothConnection connection;
 	private String content="";
@@ -52,7 +52,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	private AlertDialog pairDialog;
 	private AlertDialog.Builder builder ;
 	
-	private HexapodController hexapodMain;
+	//private HexapodController hexapodMain;
 	
 	private MonkeyController monkey;
 	
@@ -134,7 +134,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
         mTitle = (EditText) findViewById(R.id.display);
         mTitle.setKeyListener(null);
         switcher = (ViewFlipper) findViewById(R.id.startSwitch);
-        hexapodMain = new HexapodController(getActivity());
+        //hexapodMain = new HexapodController(getActivity());
         
         /**
          * set default states for buttons
@@ -176,23 +176,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
          */
         nrconsoleMainStart.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            	System.out.println("NR-Console Start");
-            	if(monkey != null)
-            		monkey.disconect();
-            	monkey = new MonkeyController(getDyio());
-            	switcher.showNext();//THis comes from where the view is defined in the XML
-            	/**
-            	 * THis sets up the listener for the back button. it is the same back button for both flipper layouts
-            	 */
-            	backToConnections = (Button) findViewById(R.id.backToConnectionsNR);
-            	backToConnections.setOnClickListener(new View.OnClickListener() {
-	                 public void onClick(View v) {
-	              	    System.out.println("NR-Console");
-	              	    switcher.showPrevious();//THis comes from where the view is defined in the XML
-		              	if(monkey != null)
-		              		monkey.disconect();
-	                 }
-            	});
+            	monkeyStart();
             }
         });
         /**
@@ -226,6 +210,37 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
         
         
     }
+    
+    private void monkeyStart(){
+    	System.out.println("NR-Console Start");
+    	if(monkey != null)
+    		monkey.disconect();
+    	monkey = new MonkeyController(getDyio(),getApplicationContext());
+    	monkey.start();
+    	new Thread(new Runnable() {
+  		  public void run() {
+  			switcher.post(new Runnable() {
+  				  public void run() {
+  					  	switcher.showNext();//THis comes from where the view is defined in the XML
+	  				  }
+	  			  });
+	  		  }
+	  	}).start();
+    	
+    	/**
+    	 * THis sets up the listener for the back button. it is the same back button for both flipper layouts
+    	 */
+    	backToConnections = (Button) findViewById(R.id.backToConnectionsNR);
+    	backToConnections.setOnClickListener(new View.OnClickListener() {
+             public void onClick(View v) {
+          	    System.out.println("NR-Console");
+          	    switcher.showPrevious();//THis comes from where the view is defined in the XML
+              	if(monkey != null)
+              		monkey.disconect();
+             }
+    	});
+    }
+    
     private void connect(){
     	if(dialog !=null){
     		dialog.dismiss();
@@ -363,14 +378,15 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	        }
 	        addToDisplay("Running");
 	        for(DyIOChannel c:getDyio().getChannels()){
-	        	c.addChannelEventListener(this);
+	        	//c.addChannelEventListener(this);
 	        }
 	        setRunningButtons(true);
-	        getDyio().addDyIOEventListener(this);
+	        //getDyio().addDyIOEventListener(this);
 	        getDyio().addConnectionEventListener(this);
 	        if(dialog !=null){
         		dialog.dismiss();
 	        }
+	       
     	}catch(Exception ex){
     		ex.printStackTrace();
         	if(dialog !=null){
@@ -402,8 +418,9 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
 	  	  			  });
 	  	  		  }
 	  	  	}).start();
-    		
+    	
     	}
+    	monkeyStart();
     }
     private void addToDisplay(String s){
     	//System.out.println(s);
@@ -427,7 +444,7 @@ public class AndroidNRConsoleActivity extends Activity implements IChannelEventL
     	System.out.println("Disconnection NRConsole");
     	if(getDyio() != null){
 	        for(DyIOChannel c:getDyio().getChannels()){
-	        	c.removeChannelEventListener(this);
+	        	//c.removeChannelEventListener(this);
 	        }
     		getDyio().disconnect();
     	}

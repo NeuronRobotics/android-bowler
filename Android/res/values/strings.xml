@@ -2,6 +2,6 @@
 <resources>
 
     <string name="hello">Hello World, AndroidNRConsoleActivity!</string>
-    <string name="app_name">MonkeyController</string>
+    <string name="app_name">Monkey Controller</string>
 
 </resources>
