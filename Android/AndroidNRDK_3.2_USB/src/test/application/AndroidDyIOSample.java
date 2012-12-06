@@ -26,7 +26,7 @@ import android.widget.Button;
 public class AndroidDyIOSample extends Activity implements View.OnClickListener {
 
     private Button mFire=null;
-    DyIO dyio = new DyIO();
+    DyIO dyio;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,7 +64,10 @@ public class AndroidDyIOSample extends Activity implements View.OnClickListener 
         System.out.println("DyIO created");
         
         if (v == mFire) {
-        	Tester.runTest(new DyIO(new AndroidSerialConnection(this)), null);
+        	DyIO.disableFWCheck();
+        	dyio = new DyIO(new AndroidSerialConnection(this));
+        	dyio.connect();
+        	Tester.runTest(dyio, null);
         }
     }
 
