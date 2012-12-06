@@ -17,14 +17,8 @@
 package test.application;
 
 import com.neuronrobotics.sdk.android.AndroidSerialConnection;
-import com.neuronrobotics.sdk.android.Tester;
 import com.neuronrobotics.sdk.dyio.DyIO;
-import com.neuronrobotics.sdk.dyio.DyIOChannelMode;
-import com.neuronrobotics.sdk.dyio.peripherals.DigitalInputChannel;
-import com.neuronrobotics.sdk.dyio.peripherals.DigitalOutputChannel;
-
 import android.app.Activity;
-import android.hardware.usb.cdc.UsbCdcSerial;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -32,7 +26,7 @@ import android.widget.Button;
 public class AndroidDyIOSample extends Activity implements View.OnClickListener {
 
     private Button mFire=null;
-    DyIO dyio;
+    DyIO dyio = new DyIO();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

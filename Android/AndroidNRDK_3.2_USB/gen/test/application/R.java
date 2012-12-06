@@ -11,18 +11,18 @@ public final class R {
     public static final class attr {
     }
     public static final class drawable {
-        public static int app_icon=0x7f020000;
+        public static final int app_icon=0x7f020000;
     }
     public static final class id {
-        public static int fire=0x7f060000;
+        public static final int fire=0x7f060000;
     }
     public static final class layout {
-        public static int launcher=0x7f030000;
+        public static final int launcher=0x7f030000;
     }
     public static final class string {
-        public static int fire=0x7f050000;
+        public static final int fire=0x7f050000;
     }
     public static final class xml {
-        public static int device_filter=0x7f040000;
+        public static final int device_filter=0x7f040000;
     }
 }
