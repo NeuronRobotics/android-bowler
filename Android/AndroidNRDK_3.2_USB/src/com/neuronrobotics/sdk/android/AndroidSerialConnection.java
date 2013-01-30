@@ -35,10 +35,11 @@ public class AndroidSerialConnection extends BowlerAbstractConnection{
 		try 
 		{
 			serial = new UsbCdcSerial(activity);
-			serial.connect();	
-			setDataIns(new DataInputStream(serial.getInputStream()));
-			setDataOuts(new DataOutputStream(serial.getOutputStream()));
-			setConnected(true);
+			if(serial.connect()){
+				setDataIns(new DataInputStream(serial.getInputStream()));
+				setDataOuts(new DataOutputStream(serial.getOutputStream()));
+				setConnected(true);
+			}
 		}catch(UnsatisfiedLinkError e){
 			throw new MissingNativeLibraryException(e.getMessage());
         }catch (Exception e) {

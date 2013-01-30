@@ -65,9 +65,15 @@ public class AndroidDyIOSample extends Activity implements View.OnClickListener 
         
         if (v == mFire) {
         	DyIO.disableFWCheck();
-        	dyio = new DyIO(new AndroidSerialConnection(this));
-        	dyio.connect();
-        	Tester.runTest(dyio, null);
+        	if(dyio== null){
+        		dyio = new DyIO(new AndroidSerialConnection(this));
+        	}else{
+        		dyio.disconnect();
+        	}
+        	if(!dyio.isAvailable())
+        		dyio.connect();
+        	if(dyio.isAvailable())
+        		Tester.runTest(dyio, null);
         }
     }
 

@@ -135,10 +135,14 @@ public class UsbCdcSerial {
     
 	public void disconnect() {
 		setConnected(false);
-		try {Thread.sleep(getTimeOutTime()*3);} catch (InterruptedException e) {}
+		try {
+			Thread.sleep(getTimeOutTime()*3);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		System.out.println(TAG+"Disconecting");
-		cdcDeviceConnection.close();
-		 
+		if(cdcDeviceConnection!=null)
+			cdcDeviceConnection.close();
 	}
 	
 	public InputStream getInputStream(){
