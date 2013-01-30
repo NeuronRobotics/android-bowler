@@ -38,7 +38,6 @@ public class AndroidDyIOSample extends Activity implements View.OnClickListener 
 
         System.out.println("@#@#@#@#@#Calling On Create");
         
-        //com.neuronrobotics.sdk.common.Log.enableDebugPrint(true);
     }
 
     @Override

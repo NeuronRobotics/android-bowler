@@ -48,7 +48,8 @@ public class Tester {
 					boolean high = false;
 					//dyio.setCachedMode(true);
 					long start = System.currentTimeMillis();
-					for(i=0;i<100;i++) {
+					int reps =10;
+					for(i=0;i<reps;i++) {
 						//dyio.flushCache(0);
 						high = !high;
 						high = dip.getValue()==1;
@@ -56,32 +57,33 @@ public class Tester {
 						double ms=System.currentTimeMillis()-start;
 						avg +=ms;
 						start = System.currentTimeMillis();
-						System.out.println("Average cycle time: "+(int)(avg/i)+"ms\t\t\t this loop was: "+ms);
+						
 					}
-					log+=("Average cycle time for IO get/set: "+(avg/i)+" ms");
 					
+					log+=("Average cycle time for IO get/set: "+(avg/i)+" ms");
+					System.out.println(log);
 					avg=0;
 					dyio.setCachedMode(true);
 					start = System.currentTimeMillis();
-					for(i=0;i<100;i++) {
+					for(i=0;i<reps;i++) {
 						dyio.flushCache(0);
 						double ms=System.currentTimeMillis()-start;
 						avg +=ms;
 						start = System.currentTimeMillis();
-						System.out.println("Average cycle time: "+(int)(avg/i)+"ms\t\t\t this loop was: "+ms);
+						
 					}
 					log+=("Average cycle time for cache flush: "+(avg/i)+" ms");
-					
+					System.out.println(log);
 					avg=0;
 					start = System.currentTimeMillis();
-					for(i=0;i<100;i++) {
+					for(i=0;i<reps;i++) {
 						dyio.ping();
 						double ms=System.currentTimeMillis()-start;
 						avg +=ms;
 						start = System.currentTimeMillis();
-						System.out.println("Average cycle time: "+(int)(avg/i)+"ms\t\t\t this loop was: "+ms);
 					}
 					log+=("Average cycle time for ping: "+(avg/i)+" ms");
+					System.out.println(log);
 					dyio.disconnect(); 
 				}catch(Exception ex) {
 		            	ex.printStackTrace();
