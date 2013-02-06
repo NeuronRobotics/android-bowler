@@ -21,12 +21,15 @@ import com.neuronrobotics.sdk.common.Log;
 import com.neuronrobotics.sdk.dyio.DyIO;
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 public class AndroidDyIOSample extends Activity implements View.OnClickListener {
 
     private Button mFire=null;
+    private EditText log=null;
     DyIO dyio;
 
     @Override
@@ -36,6 +39,8 @@ public class AndroidDyIOSample extends Activity implements View.OnClickListener 
         setContentView(R.layout.launcher);
         mFire = (Button)findViewById(R.id.fire);
         mFire.setOnClickListener(this);
+        
+        log = (EditText)findViewById(R.id.testLog);
 
         System.out.println("@#@#@#@#@#Calling On Create");
         
@@ -65,7 +70,7 @@ public class AndroidDyIOSample extends Activity implements View.OnClickListener 
         
         if (v == mFire) {
         	DyIO.disableFWCheck();
-        	Log.enableDebugPrint(true);
+        	//Log.enableDebugPrint(true);
         	if(dyio== null){
         		dyio = new DyIO(new AndroidSerialConnection(this));
         	}else{
@@ -74,7 +79,7 @@ public class AndroidDyIOSample extends Activity implements View.OnClickListener 
         	if(!dyio.isAvailable())
         		dyio.connect();
         	if(dyio.isAvailable())
-        		Tester.runTest(dyio, null);
+        		Tester.runTest(dyio, log);
         }
     }
 

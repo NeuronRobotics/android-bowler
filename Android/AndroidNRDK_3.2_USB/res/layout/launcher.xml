@@ -31,6 +31,15 @@
             android:text="@string/fire">
         </Button>
 
+        <TextView
+            android:id="@+id/testLog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textMultiLine" >
+
+            <requestFocus />
+        </TextView>
 
 </LinearLayout>
 
