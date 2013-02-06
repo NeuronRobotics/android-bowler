@@ -25,11 +25,12 @@ import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class AndroidDyIOSample extends Activity implements View.OnClickListener {
 
     private Button mFire=null;
-    private EditText log=null;
+    private TextView log=null;
     DyIO dyio;
 
     @Override
@@ -40,7 +41,7 @@ public class AndroidDyIOSample extends Activity implements View.OnClickListener 
         mFire = (Button)findViewById(R.id.fire);
         mFire.setOnClickListener(this);
         
-        log = (EditText)findViewById(R.id.testLog);
+        log = (TextView)findViewById(R.id.testLog);
 
         System.out.println("@#@#@#@#@#Calling On Create");
         
