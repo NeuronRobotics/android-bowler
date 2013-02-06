@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
+import com.neuronrobotics.sdk.common.ByteList;
+
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbRequest;
 

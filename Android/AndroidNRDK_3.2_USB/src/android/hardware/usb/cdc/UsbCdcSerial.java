@@ -27,6 +27,8 @@ public class UsbCdcSerial {
 	
 	private Activity activity;
 	
+	protected final  int  pollTime =1;
+	
 	
 	public UsbCdcSerial(Activity a) {
 		activity = a;
@@ -194,13 +196,11 @@ public class UsbCdcSerial {
 	}
 
 	public int getTimeOutTime() {
-		// TODO Auto-generated method stub
 		return 500;
 	}
 
 	public long getPollTime() {
-		// TODO Auto-generated method stub
-		return 1;
+		return pollTime;
 	}
    
 }

@@ -4,6 +4,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import com.neuronrobotics.sdk.common.ByteList;
+
 import android.hardware.usb.UsbEndpoint;
 //import com.neuronrobotics.sdk.common.ByteList;
 //import com.neuronrobotics.sdk.util.ThreadUtil;
@@ -53,7 +55,7 @@ public class UsbCdcOutputStream extends Thread {
 																	sendData, 
 																	sendData.length, 
 																		cdc.getTimeOutTime());
-						try {Thread.sleep(10);} catch (InterruptedException e) {}
+						try {Thread.sleep(cdc.getPollTime());} catch (InterruptedException e) {}
 						if(back<0) {
 							System.out.println("Transmit failed");
 							cdc.reconnect();

@@ -17,6 +17,7 @@
 package test.application;
 
 import com.neuronrobotics.sdk.android.AndroidSerialConnection;
+import com.neuronrobotics.sdk.common.Log;
 import com.neuronrobotics.sdk.dyio.DyIO;
 import android.app.Activity;
 import android.os.Bundle;
@@ -64,6 +65,7 @@ public class AndroidDyIOSample extends Activity implements View.OnClickListener 
         
         if (v == mFire) {
         	DyIO.disableFWCheck();
+        	Log.enableDebugPrint(true);
         	if(dyio== null){
         		dyio = new DyIO(new AndroidSerialConnection(this));
         	}else{
