@@ -9,7 +9,9 @@ import com.neuronrobotics.sdk.util.ThreadUtil;
 
 public class Tester {
 	static String log="";
+	private static TextView mConversationView;
 	public static void runTest(final DyIO dyio, final TextView mConversationView){
+		Tester.mConversationView = mConversationView;
 		if(mConversationView!=null){
 	        new Thread(){
 	        	
@@ -20,9 +22,9 @@ public class Tester {
 	                	try{
 	                		mConversationView.setText(Tester.getLog());
 	                	}catch (Exception ex){
-	                		//ex.printStackTrace();
+	                		ex.printStackTrace();
 	                	}
-	                	System.err.println(Tester.getLog());
+	                	//System.err.println(Tester.getLog());
 	                }
 	        	}
 	        }.start();
@@ -60,7 +62,7 @@ public class Tester {
 						
 					}
 					
-					log+=("Average cycle time for IO get/set: "+(avg/i)+" ms");
+					log+=("Average cycle time for IO get/set: "+(avg/i)+" ms\r\n");
 					System.out.println(log);
 					avg=0;
 					dyio.setCachedMode(true);
@@ -72,7 +74,7 @@ public class Tester {
 						start = System.currentTimeMillis();
 						
 					}
-					log+=("Average cycle time for cache flush: "+(avg/i)+" ms");
+					log+=("Average cycle time for cache flush: "+(avg/i)+" ms\r\n");
 					System.out.println(log);
 					avg=0;
 					start = System.currentTimeMillis();
@@ -82,7 +84,7 @@ public class Tester {
 						avg +=ms;
 						start = System.currentTimeMillis();
 					}
-					log+=("Average cycle time for ping: "+(avg/i)+" ms");
+					log+=("Average cycle time for ping: "+(avg/i)+" ms\r\n");
 					System.out.println(log);
 					dyio.disconnect(); 
 				}catch(Exception ex) {

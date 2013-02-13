@@ -13,34 +13,31 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
+    android:orientation="vertical" >
 
-        <Button android:id="@+id/fire"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:layout_marginBottom="25dp"
-            android:layout_marginLeft="25dp"
-            android:layout_marginRight="25dp"
-            android:textSize="36sp"
-            android:text="@string/fire">
-        </Button>
+    <Button
+        android:id="@+id/fire"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="25dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:layout_marginTop="25dp"
+        android:text="@string/fire"
+        android:textSize="36sp" >
+    </Button>
 
-        <TextView
-            android:id="@+id/testLog"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textMultiLine" >
+    <TextView
+        android:id="@+id/testLog"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.29"
+        android:ems="10" >
 
-            <requestFocus />
-        </TextView>
+        <requestFocus />
+    </TextView>
 
 </LinearLayout>
-
-
