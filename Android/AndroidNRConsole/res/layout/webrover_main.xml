@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="top"
+    android:orientation="vertical" >
+
+    <Button
+        android:id="@+id/backToConnectionsNR2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Back To Connections" />
+
+    <Button
+        android:id="@+id/StartWebserver"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Server" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Server not started..."
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+</LinearLayout>

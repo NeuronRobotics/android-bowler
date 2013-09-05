@@ -38,6 +38,12 @@
                 android:layout_height="wrap_content"
                 android:text="Start Hexapod" />
 
+			<Button
+			    android:id="@+id/webrover"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:text="WebRover Start" />
+
             <ScrollView
                 android:id="@+id/displayScroller"
                 android:layout_width="fill_parent"
@@ -75,6 +81,9 @@
 		<include
 			layout="@layout/hexapod_main"
 			android:id="@+id/hexapod_main" />
+		<include
+			layout="@layout/webrover_main"
+			android:id="@+id/webrover_main" />
 		
     </ViewFlipper>
 
