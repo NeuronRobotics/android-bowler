@@ -2,6 +2,7 @@ package com.neuronrobotics.android;
 
 import java.io.*;
 import java.util.*;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -57,7 +58,7 @@ public class TeaServer extends NanoHTTPD
 		if ( cgi == null)
 			return null;
 
-		String msg = cgi.run(parms);
+		String msg = cgi.run(parms,header);
 		if ( msg == null)
 			return null;
 
@@ -76,7 +77,7 @@ public class TeaServer extends NanoHTTPD
 	} 
 
 	public static interface CommonGatewayInterface {
-		public String run(Properties parms); 
+		public String run(Properties parms, Properties header); 
 		public InputStream streaming(Properties parms);
 	}
 	private HashMap<String, CommonGatewayInterface> cgiEntries = new HashMap<String, CommonGatewayInterface>();

@@ -1,0 +1,67 @@
+
+<!DOCTYPE html> 
+<html> 
+<head> 
+	<title>Page Title</title> 
+
+     <script src="/static/jquery-1.8.2.min.js"></script>
+<script src="/static/virtualjoystick.js"></script>
+  <style>
+	#container {
+width	: 100%;
+height	: 100%;
+background: black;
+overflow	: hidden;
+padding	: 0;
+margin	: 0;
+-webkit-user-select	: none;
+-moz-user-select	: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+  </style>
+
+</head> 
+
+<body> 
+
+<div id="container">a</div>
+	<script>
+console.log("touchscreen is", VirtualJoystick.touchScreenAvailable() ? "available" : "not available");
+var joystick	= new VirtualJoystick({
+container	: document.getElementById('container'),
+mouseSupport	: true
+});
+
+var posx = 0;
+var posy = 0;
+var oldx = 0;
+var oldy = 0;
+
+//$( "#container" ).height($(window).height()/4);
+
+setInterval(function(){
+                    posx = joystick.deltaX();
+                    posy = joystick.deltaY();
+			    // update if position changes
+			    if (posx != oldx | posy != oldy){ 
+
+				    oldx = posx; oldy = posy;
+                    console.log('/drive/'+posx+'/'+posy+'');
+				    $.getJSON('/drive/'+posx+'/'+posy+'',null);
+			    }
+},100);
+
+
+</script>
+
+</body>
+
+
+
+</html>

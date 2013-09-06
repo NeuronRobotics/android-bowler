@@ -17,6 +17,7 @@ import com.neuronrobotics.sdk.dyio.DyIORegestry;
 import com.neuronrobotics.sdk.dyio.IChannelEventListener;
 import com.neuronrobotics.sdk.dyio.IDyIOEvent;
 import com.neuronrobotics.sdk.dyio.IDyIOEventListener;
+import com.neuronrobotics.sdk.dyio.peripherals.ServoChannel;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -65,16 +66,19 @@ public class AndroidNRConsoleActivity extends Activity implements
 	private AlertDialog pairDialog;
 	private AlertDialog.Builder builder;
 	private com.neuronrobotics.android.TeaServer webServer;
-	private TimerTask DyIOCtlTask;
-	private Timer DyIOCtlTimer;
 	private HexapodController hexapodMain;
 	private AndroidNRConsoleActivity activity;
 	private Button startServer;
+	private DyIOCommThread commThread;
+	private WebRoverServer roverServer;
+	
+	// Client Queue for bot
 
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
+		commThread.stop();
 		System.out.println("On Destroy");
 	}
 
@@ -82,6 +86,7 @@ public class AndroidNRConsoleActivity extends Activity implements
 	protected void onStop() {
 		// TODO Auto-generated method stub
 		super.onStop();
+		commThread.interrupt();
 		System.out.println("Calling on stop");
 
 	}
@@ -167,7 +172,7 @@ public class AndroidNRConsoleActivity extends Activity implements
 		hexapodStart.setEnabled(false);
 		webroverStart.setEnabled(false);
 
-		/**
+		/*
 		 * Set a string to the display with the application name
 		 */
 		addToDisplay("NR-Console");
@@ -203,54 +208,17 @@ public class AndroidNRConsoleActivity extends Activity implements
 				startServer.setEnabled(false);
 				final Handler handler = new Handler();
 				try {
+;
+
+					commThread = new DyIOCommThread(getDyio(),(Activity) getActivity());
+					commThread.start();
 					webServer = new TeaServer(PORT, activity);
 					webServer.registerCGI("/cgi/fyeah", fyeah);
 					webServer.registerCGI("/cgi/sounds", dalekPhrases);
+					webServer.registerCGI("/cgi/drive", drive);
+					//roverServer = new WebRoverServer(commThread,(Activity) getActivity());
+
 					TextView textIpaddr = (TextView) findViewById(R.id.textView6);
-					/*new Thread(new Runnable() {
-						public void run() {
-							while (true) {
-								
-								try {
-									Log.v("DyioUpdateThread", "starting poke..");
-									startServer.post(new Runnable() {
-						  				  public void run() {
-						  					testString = getDyio().toString();
-						  					Log.v("DyioUpdateThread", "poke");
-							  				  }
-							  			  });
-									
-									Thread.sleep(5000);
-									
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-
-							}
-						}
-					}).start();*/
-
-					 testString = getDyio().toString();
-					 getDyio().addConnectionEventListener(new IConnectionEventListener() {
-						
-						public void onDisconnect() {
-							// TODO Auto-generated method stub
-							try{
-								throw new RuntimeException();
-							}catch(Exception e){
-								e.printStackTrace();
-								Log.v("Disconnect", e.getStackTrace().toString());
-							}
-						}
-						
-						public void onConnect() {
-							// TODO Auto-generated method stub
-							
-						}
-					});
-					// DyIOCtlHandler.postDelayed(DyIOCtlTask, 500);
-
 					WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
 					int ipAddress = wifiManager.getConnectionInfo()
 							.getIpAddress();
@@ -260,11 +228,11 @@ public class AndroidNRConsoleActivity extends Activity implements
 							(ipAddress >> 24 & 0xff));
 					textIpaddr.setText("http://" + formatedIpAddress + ":"
 							+ PORT);
-				} catch (IOException e) {
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				disconnect();
+				//disconnect();
 			}
 		});
 
@@ -637,9 +605,9 @@ public class AndroidNRConsoleActivity extends Activity implements
 
 	private TeaServer.CommonGatewayInterface fyeah = new TeaServer.CommonGatewayInterface() {
 
-		public String run(Properties parms) {
+		public String run(Properties parms,Properties header) {
 			// TODO Auto-generated method stub
-			return "ok " + testString;
+			return "ok ";
 		}
 
 		public InputStream streaming(Properties parms) {
@@ -652,10 +620,34 @@ public class AndroidNRConsoleActivity extends Activity implements
 	// List sounds CGI
 	private TeaServer.CommonGatewayInterface dalekPhrases = new TeaServer.CommonGatewayInterface() {
 
-		public String run(Properties parms) {
-			AssetManager am = getAssets();
+		public String run(Properties parms,Properties header) {
+			if (parms.containsKey("sound")){
+				// Play a sound file
+				Log.i("WebRoverServer","Playing sound "+parms.getProperty("sound"));
+			} else {
+				// Send them the list
+				
+			}
+			AssetManager am = activity.getAssets();
 			String[] sounds;
-			return "{status : \"error\"}";
+			return parms+"\n"+header;
+		}
+
+
+		public InputStream streaming(Properties parms) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+	};
+	//drive
+	private TeaServer.CommonGatewayInterface drive = new TeaServer.CommonGatewayInterface() {
+
+		public String run(Properties parms,Properties header) {
+			commThread.setLeftSpeed(Integer.parseInt(parms.getProperty("left")));
+			commThread.setRightSpeed(Integer.parseInt(parms.getProperty("right")));
+			
+			return parms.toString();
 		}
 
 		public InputStream streaming(Properties parms) {

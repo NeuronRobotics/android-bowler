@@ -371,6 +371,7 @@ public class NanoHTTPD
 
 				// Decode the header into parms and header java properties
 				decodeHeader(hin, pre, parms, header);
+				header.put("IPAddress", mySocket.getInetAddress().getHostAddress());
 				String method = pre.getProperty("method");
 				String uri = pre.getProperty("uri");
 
