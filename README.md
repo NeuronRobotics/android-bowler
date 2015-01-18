@@ -14,7 +14,7 @@ Once you can connect to and android device and run an applcation from the develo
 
 Use EGit to clone this repository. Instructions for using EGit can be found here:
 
-http://www.vogella.com/tutorials/EclipseGit/article.html
+http://www.vogella.com/tutorials/EclipseGit/article.html#github_clone
 
 Clone the master repository and import all projects in the repository (a check box on the last step, or it can be don after by right-clicking on the repository). 
 
